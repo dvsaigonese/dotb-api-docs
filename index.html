@@ -16,4 +16,28 @@
     <script src="dist/swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
     <script src="dist/swagger-initializer.js" charset="UTF-8"> </script>
   </body>
+  <!-- <script>
+    window.onload = () => {
+      SwaggerUIBundle({
+        url: "swagger.yaml",            // đường dẫn tới file YAML của bạn
+        dom_id: "#swagger-ui",
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        layout: "BaseLayout",
+
+        // --- CẤU HÌNH ĐỂ MỞ RỘNG MODEL VÀ EXAMPLE TỰ ĐỘNG ---
+        // depth của model (ở phần “Models” ở cuối) khi load: -1 = expand tất cả; 0 = chỉ hiện tên model; 1 = hiện 1 cấp; v.v.
+        defaultModelsExpandDepth: -1,
+        // depth của schema ở ngay param hoặc body khi load. Đặt -1 để tự động expand tất cả.
+        defaultModelExpandDepth: -1,
+        // hiển thị ví dụ (example) trong requestBody trước cả schema
+        defaultModelRendering: "example",
+        // nếu muốn cho phép “Try it out” ngay khi load
+        tryItOutEnabled: true,
+        // ----------------------------------------------------------------
+      });
+    };
+  </script> -->
 </html>

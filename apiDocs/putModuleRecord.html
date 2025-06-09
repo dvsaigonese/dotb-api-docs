@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>/&lt;module&gt;/:record POST</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-ENjdO4Dr2bkBIFxQpeoA6V+5e1kLkqj0O7bZ+ckQ4YW5nLIv0QK8y1NQ9KI65qnm"
+      crossorigin="anonymous"
+    />
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f2f5f7;
+      }
+      .card {
+        border: none;
+        border-radius: 1rem;
+      }
+      .card-title {
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 2rem;
+      }
+      h2.h5 {
+        color: #34495e;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: .3rem;
+      }
+      .table thead {
+        background-color: #3498db;
+        color: #fff;
+      }
+      .table th,
+      .table td {
+        vertical-align: middle;
+      }
+      .table tbody tr:hover {
+        background-color: #ecf0f1;
+      }
+      code {
+        background: #ecf0f1;
+        padding: .2rem .4rem;
+        border-radius: .25rem;
+        color: #c0392b;
+      }
+      .ms-3 { margin-left: 1rem!important; }
+      .ms-5 { margin-left: 2rem!important; }
+      ul { list-style-type: disc; }
+      ul li { margin-bottom: .5rem; }
+    </style>
+  </head>
+  <body class="p-5">
+    <div class="container py-5">
+      <div class="card shadow-sm p-4">
+        <div class="card-body">
+          <a href="../index.html">Về trang chủ</a>
+          <h1 class="card-title mb-4">/&lt;module&gt;/:record POST</h1>
+
+          <h2 class="h5">Tổng quan</h2>
+          <p class="ms-3">
+            Cập nhật bản ghi với các trường cụ thể được chỉ định trong request.<br>
+            Endpoint luôn yêu cầu truyền đúng tên module theo dạng API name (Ví dụ: <code>Contacts</code>, <code>Accounts</code>, <code>Targets</code>, <code>Prospects</code>).
+          </p>
+
+          <h2 class="h5 mt-4">Request</h2>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th>Tên</th>
+                  <th>Loại</th>
+                  <th>Mô tả</th>
+                  <th>Bắt buộc</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>&lt;record field&gt;</td>
+                  <td>&lt;record field type&gt;</td>
+                  <td>Danh sách tên - giá trị của các field để gán cho bản ghi. Có thể bao gồm cả các liên kết (link fields) để tạo hoặc liên kết các record khác.</td>
+                  <td>True</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 class="h5 mt-4">Request mẫu (các trường muốn cập nhật)</h2>
+          <pre class="bg-light p-3 rounded"><code>{
+    "name":"Example Account",
+    "account_type":"Customer",
+    "description":"My Example Account",
+    "meetings": {
+    {
+        "add": ["21e3385e-404f-b470-407e-54044e3d8024"],
+        "delete": ["21e3385e-404f-b470-407e-54044e3d8023"],
+        "create": [
+        {
+            "name": "Test Meeting"
+        }
+      ]
+    }
+  }
+}</code></pre>
+          </p>
+
+          <h2 class="h5 mt-4">Link fields</h2>
+          <p class="ms-3">
+            Có thể thao tác để thêm vào record đó relationship tương ứng, ứng với <code>id</code> được truyền vào.<br><br>
+            Dùng request mẫu để nói qua một chút về việc tạo relationship, ví dụ như ở mẫu, liên kết là trường <code>meetings</code><br>
+            Mảng bên trong trường <code>meetings</code> đó, gồm có <code>add</code> và <code>create</code><br>
+            -> với <code>add</code>: Là danh sách các ID của những bản ghi Meetings đã tồn tại muốn liên kết vào record.<br>
+            -> và <code>delete</code>: Là danh sách các ID của những bản ghi Meetings đã tồn tại muốn xóa khỏi record.<br>
+            -> còn <code>create</code>: Là mảng các object chứa dữ liệu của những Meetings mới, nó sẽ được tạo ngay lập tức và tự động liên kết vào record.
+          </p>
+
+          <h2 class="h5 mt-4">Response Arguments</h2>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th>Tên</th>
+                  <th>Loại</th>
+                  <th>Mô tả</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>&lt;record field&gt;</td>
+                  <td>&lt;record field type&gt;</td>
+                  <td>Giá trị trả về của record vừa tạo; bao gồm các field được gửi và thêm giá trị mặc định như <code>id</code>, <code>date_entered</code>, <code>created_by</code>...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 class="h5 mt-4">Response mẫu (record mới được tạo)</h2>
+          <pre class="bg-light p-3 rounded"><code>{
+   "id":"e91b1fa7-1bd8-3c71-be96-512e643f9ca4",
+   "name":"Example Account",
+   "date_entered":"2013-02-27T19:56:00+00:00",
+   "date_modified":"2013-02-27T19:56:00+00:00",
+   "modified_user_id":"1",
+   "modified_by_name":"Administrator",
+   "created_by":"1",
+   "created_by_name":"Administrator",
+   "description":"My Example Account",
+   "img":"",
+   "deleted":false,
+   "assigned_user_id":"",
+   "assigned_user_name":"",
+   "team_name":[
+      {
+         "id":1,
+         "name":"Global",
+         "name_2":"",
+         "primary":true
+      }
+   ],
+   "linkedin":"",
+   "facebook":"",
+   "twitter":"",
+   "googleplus":"",
+   "account_type":"Customer",
+   "industry":"",
+   "annual_revenue":"",
+   "phone_fax":"",
+   "billing_address_street":"",
+   "billing_address_street_2":"",
+   "billing_address_street_3":"",
+   "billing_address_street_4":"",
+   "billing_address_city":"",
+   "billing_address_state":"",
+   "billing_address_postalcode":"",
+   "billing_address_country":"",
+   "rating":"",
+   "phone_office":"",
+   "phone_alternate":"",
+   "website":"",
+   "ownership":"",
+   "employees":"",
+   "ticker_symbol":"",
+   "shipping_address_street":"",
+   "shipping_address_street_2":"",
+   "shipping_address_street_3":"",
+   "shipping_address_street_4":"",
+   "shipping_address_city":"",
+   "shipping_address_state":"",
+   "shipping_address_postalcode":"",
+   "shipping_address_country":"",
+   "email1":"",
+   "parent_id":"",
+   "sic_code":"",
+   "parent_name":"",
+   "email_opt_out":"",
+   "invalid_email":"",
+   "email":[
+
+   ],
+   "campaign_id":"",
+   "campaign_name":"",
+   "my_favorite":false,
+   "_acl":{
+      "fields":{
+
+      }
+   }
+}
+</code></pre>
+
+        </div>
+      </div>
+    </div>
+    <!-- Bootstrap JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-qQ2IXsiF0V1x/9333HSBqxM+Jf8RzL2XpOnnubsUFG9UhVO8q8/vp1k0ZLynW+XK"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

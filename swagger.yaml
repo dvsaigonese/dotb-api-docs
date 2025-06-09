@@ -1,718 +1,903 @@
----
-swagger: "2.0"
+openapi: "3.0.0"
 info:
-  description: "This is a sample server Petstore server.  You can find out more about\
-    \ Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).\
-    \  For this sample, you can use the api key `special-key` to test the authorization\
-    \ filters."
-  version: "1.0.5"
-  title: "Swagger Petstore"
+  description: "Tài liệu API DotB."
+  version: "1.0"
+  title: "DOTB API"
   termsOfService: "http://swagger.io/terms/"
   contact:
-    email: "apiteam@swagger.io"
+    email: "contact@dotb.vn"
   license:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "petstore.swagger.io"
-basePath: "/v2"
+servers:
+  - url: "http://localhost/dotbedu_mn/rest/v11_3"
+    description: "Local server"
+  - url: "https://localhost/dotbedu_mn/rest/v11_3"
+    description: "Local server (HTTPS)"
 tags:
-- name: "pet"
-  description: "Everything about your Pets"
+- name: "oauth2"
+  description: "API xác thực và đăng nhập"
   externalDocs:
-    description: "Find out more"
+    description: "Tìm hiểu thêm"
     url: "http://swagger.io"
-- name: "store"
-  description: "Access to Petstore orders"
-- name: "user"
-  description: "Operations about user"
+- name: "lists (filter)"
+  description: "API lọc danh sách bản ghi (cần token xác thực)"
   externalDocs:
-    description: "Find out more about our store"
+    description: "Tìm hiểu thêm"
     url: "http://swagger.io"
-schemes:
-- "https"
-- "http"
+- name: "details (record)"
+  description: "API thao tác trên từng bản ghi cụ thể (cần token xác thực)"
 paths:
-  /pet/{petId}/uploadImage:
+  /oauth2/token:
     post:
       tags:
-      - "pet"
-      summary: "uploads an image"
-      description: ""
-      operationId: "uploadFile"
-      consumes:
-      - "multipart/form-data"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "petId"
-        in: "path"
-        description: "ID of pet to update"
+      - "oauth2"
+      summary: "Lấy OAuth2 token"
+      description: "Nhận thông tin đăng nhập và trả về access_token cùng các trường liên quan."
+      operationId: "getToken"
+      requestBody:
         required: true
-        type: "integer"
-        format: "int64"
-      - name: "additionalMetadata"
-        in: "formData"
-        description: "Additional data to pass to server"
-        required: false
-        type: "string"
-      - name: "file"
-        in: "formData"
-        description: "file to upload"
-        required: false
-        type: "file"
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - grant_type
+              - client_id
+              - username
+              - password
+              - platform
+              properties:
+                grant_type:
+                  type: string
+                  description: "Kiểu grant, luôn là 'password'."
+                  default: "password"
+                client_id:
+                  type: string
+                  description: "Client ID của ứng dụng (mặc định: 'dotb')."
+                  default: "dotb"
+                client_secret:
+                  type: string
+                  description: "Client secret (nếu có, có thể để trống)."
+                  example: ""
+                username:
+                  type: string
+                  description: "Tên đăng nhập của user."
+                  example: "dotbedu@dotb.vn"
+                password:
+                  type: string
+                  format: password
+                  description: "Mật khẩu của user."
+                  example: "123456789"
+                platform:
+                  type: string
+                  description: "Nguồn hoặc nền tảng sinh token (ví dụ: 'base')."
+                  example: "base"
       responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/ApiResponse"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /pet:
-    post:
+        '200':
+          description: "Đăng nhập thành công, trả về access_token và các trường liên quan."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    description: "JWT hoặc UUID dùng để xác thực các request tiếp theo."
+                    example: "0a3abbc1-e0a9-4def-bc7f-baecd9b05fa1"
+                  expires_in:
+                    type: integer
+                    description: "Thời gian hết hạn của access_token (tính bằng giây)."
+                    example: 3600
+                  token_type:
+                    type: string
+                    description: "Kiểu token, thường là 'bearer'."
+                    example: "bearer"
+                  scope:
+                    type: string
+                    description: "Phạm vi (scope) được cấp, có thể null nếu không áp dụng."
+                    example: null
+                  refresh_token:
+                    type: string
+                    description: "Refresh token dùng để lấy access_token mới."
+                    example: "50a98d3c-6f45-42a2-86b3-466c7d6a5d36"
+                  refresh_expires_in:
+                    type: integer
+                    description: "Thời gian hết hạn của refresh_token (tính bằng giây)."
+                    example: 1209599
+                  download_token:
+                    type: string
+                    description: "Token phụ (nếu có) dùng cho mục đích tải tài nguyên."
+                    example: "0ccfe4ee-41d9-4b1b-b3ab-f0687723eb70"
+  /{module}:
+    get:
       tags:
-      - "pet"
-      summary: "Add a new pet to the store"
-      description: ""
-      operationId: "addPet"
-      consumes:
-      - "application/json"
-      - "application/xml"
-      produces:
-      - "application/json"
-      - "application/xml"
+      - "lists (filter)"
+      summary: "Lấy danh sách bản ghi của module (LIST ALL)"
+      description: "Xem chi tiết tại [tài liệu HTML](/apiDocs/getModule.html)"
+      operationId: "filterModuleAll"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Pet object that needs to be added to the store"
+      - name: "module"
+        in: "path"
+        description: "Tên module (ví dụ: Accounts, Contacts)."
         required: true
         schema:
-          $ref: "#/definitions/Pet"
+          type: string
+      - name: "filter"
+        in: "query"
+        description: "Biểu thức bộ lọc."
+        required: false
+        schema:
+          type: string
+      - name: "max_num"
+        in: "query"
+        description: "Số bản ghi tối đa trả về (Ví dụ: 100)."
+        required: false
+        schema:
+          type: integer
+      - name: "offset"
+        in: "query"
+        description: "Số bản ghi bỏ qua trước khi danh sách được trả về."
+        required: false
+        schema:
+          type: integer
+      - name: "fields"
+        in: "query"
+        description: "Danh sách trường muốn được trả về."
+        required: false
+        schema:
+          type: string
+      - name: "order_by"
+        in: "query"
+        description: "Sắp xếp kết quả."
+        required: false
+        schema:
+          type: string
+      - name: "deleted"
+        in: "query"
+        description: "Cho phép hiển thị bản ghi đã xóa."
+        required: false
+        schema:
+          type: boolean
+      - name: "nulls_last"
+        in: "query"
+        description: "Đưa các giá trị null xuống cuối danh sách trả về khi sắp xếp."
+        required: false
+        schema:
+          type: boolean
       responses:
-        405:
-          description: "Invalid input"
+        '200':
+          description: Thành công, trả về mảng bản ghi
+          content:
+            application/json:
+              example:
+                next_offset: -1
+                records:
+                  - id: "fa300a0e-0ad1-b322-9601-512d0983c19a"
+                    name: "Nelson Inc"
+                    date_modified: "2013-02-28T05:03:00+00:00"
+                    description: ""
+                    opportunities:
+                      - _module: "Opportunities"
+                        id: "b0701501-1fab-8ae7-3942-540da93f5017"
+                        name: "360 Vacations - 228 Units"
+                        date_modified: "2014-09-08T16:05:00+03:00"
+                        sales_status: "New"
+                    _acl:
+                      fields: {}
+                  - id: "95e17367-9b3d-0e26-22dc-512d0961fedf"
+                    name: "Florence Haddock"
+                    date_modified: "2013-02-26T19:12:00+00:00"
+                    description: ""
+                    opportunities:
+                      - _module: "Opportunities"
+                        id: "9ce7c088-8ee4-7cd3-18f1-540da944d4c0"
+                        name: "360 Vacations - 312 Units"
+                        date_modified: "2014-09-08T16:05:00+03:00"
+                        sales_status: "New"
+                    _acl:
+                      fields: {}
       security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
+      - BearerAuth: []
+    post:
+      tags:
+      - "details (record)"
+      summary: "Tạo mới bản ghi (Create Record)"
+      description: "Xem chi tiết tại [tài liệu HTML](/apiDocs/postModule.html)."
+      operationId: "createRecord"
+      parameters:
+      - name: "module"
+        in: "path"
+        description: "Tên module (ví dụ: Accounts, Contacts)."
+        required: true
+        schema:
+          type: string
+          example: "Accounts"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              name: "New Account Name"
+              phone_office: "(555) 888-5555"
+              website: "www.newsite.com"
+              meetings:
+                add:
+                  - "21e3385e-404f-b470-407e-54044e3d8024"
+                delete:
+                  - "21e3385e-404f-b470-407e-54044e3d8023"
+                create:
+                  - name: "Test Meeting"
+      responses:
+        '200':
+          description: Record được tạo thành công, trả về thông tin record
+          content:
+            application/json:
+              example:
+                id: "f222265a-b755-da89-0bc7-512d09b800b6"
+                name: "New Account Name"
+                date_entered: "2013-02-26T19:12:00+00:00"
+                date_modified: "2013-02-27T22:49:00+00:00"
+                modified_user_id: "1"
+                modified_by_name: "Administrator"
+                created_by: "1"
+                created_by_name: "Administrator"
+                description: ""
+                img: ""
+                last_activity_date: "2013-02-26T19:12:00+00:00"
+                deleted: false
+                assigned_user_id: "seed_sarah_id"
+                assigned_user_name: "Sarah Smith"
+                team_name:
+                  - id: 1
+                    name: "Global"
+                    name_2: ""
+                    primary: false
+                  - id: "West"
+                    name: "West"
+                    name_2: ""
+                    primary: true
+                linkedin: ""
+                facebook: ""
+                twitter: ""
+                googleplus: ""
+                account_type: "Customer"
+                industry: "Hospitality"
+                annual_revenue: ""
+                phone_fax: ""
+                billing_address_street: "9 IBM Path"
+                billing_address_street_2: ""
+                billing_address_street_3: ""
+                billing_address_street_4: ""
+                billing_address_city: "San Francisco"
+                billing_address_state: "CA"
+                billing_address_postalcode: "43635"
+                billing_address_country: "USA"
+                rating: ""
+                phone_office: "(555) 888-5555"
+                phone_alternate: ""
+                website: "www.newsite.com"
+                ownership: ""
+                employees: ""
+                ticker_symbol: ""
+                shipping_address_street: "9 IBM Path"
+                shipping_address_street_2: ""
+                shipping_address_street_3: ""
+                shipping_address_street_4: ""
+                shipping_address_city: "San Francisco"
+                shipping_address_state: "CA"
+                shipping_address_postalcode: "43635"
+                shipping_address_country: "USA"
+                email1: "kid86@example.net"
+                parent_id: ""
+                sic_code: ""
+                parent_name: ""
+                email_opt_out: false
+                invalid_email: false
+                email:
+                  - email_address: "kid86@example.net"
+                    opt_out: "0"
+                    invalid_email: "0"
+                    primary_address: "1"
+                  - email_address: "the.dev@example.name"
+                    opt_out: "0"
+                    invalid_email: "0"
+                    primary_address: "0"
+                campaign_id: ""
+                campaign_name: ""
+                my_favorite: false
+                _acl:
+                  fields: {}
+      security:
+      - BearerAuth: []
+  /{module}/count:
+    get:
+      tags:
+      - "lists (filter)"
+      summary: "Lấy tổng số bản ghi (COUNT)"
+      description: "Xem chi tiết tại [tài liệu HTML](/apiDocs/getModuleCount.html)"
+      operationId: "filterModuleAllCount"
+      parameters:
+      - name: "module"
+        in: "path"
+        description: "Tên module (ví dụ: Accounts, Contacts)."
+        required: true
+        schema:
+          type: string
+      - name: "filter"
+        in: "query"
+        description: "Biểu thức bộ lọc."
+        required: false
+        schema:
+          type: string
+      - name: "max_num"
+        in: "query"
+        description: "Số bản ghi tối đa trả về (Ví dụ: 100)."
+        required: false
+        schema:
+          type: integer
+      - name: "offset"
+        in: "query"
+        description: "Số bản ghi bỏ qua trước khi danh sách được trả về."
+        required: false
+        schema:
+          type: integer
+      - name: "fields"
+        in: "query"
+        description: "Danh sách trường muốn được trả về."
+        required: false
+        schema:
+          type: string
+      - name: "order_by"
+        in: "query"
+        description: "Sắp xếp kết quả."
+        required: false
+        schema:
+          type: string
+      - name: "deleted"
+        in: "query"
+        description: "Cho phép hiển thị bản ghi đã xóa."
+        required: false
+        schema:
+          type: boolean
+      - name: "nulls_last"
+        in: "query"
+        description: "Đưa các giá trị null xuống cuối danh sách trả về khi sắp xếp."
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: "Thành công, trả về số lượng bản ghi."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record_count:
+                    type: integer
+                    description: "Tổng số bản ghi thỏa filter (hoặc toàn bộ nếu không có filter)."
+                    example: 1234
+      security:
+      - BearerAuth: []
+  /{module}/filter:
+    get:
+      tags:
+      - "lists (filter)"
+      summary: "Lấy danh sách bản ghi đã được lọc (GET)"
+      description: "Xem chi tiết tại [tài liệu HTML](/apiDocs/getModuleFilter.html)"
+      operationId: "filterModuleGet"
+      parameters:
+      - name: "module"
+        in: "path"
+        description: "Tên module (ví dụ: Accounts, Contacts)."
+        required: true
+        schema:
+          type: string
+      - name: "filter"
+        in: "query"
+        description: "Biểu thức bộ lọc."
+        required: false
+        schema:
+          type: string
+      - name: "max_num"
+        in: "query"
+        description: "Số bản ghi tối đa trả về (Ví dụ: 100)."
+        required: false
+        schema:
+          type: integer
+      - name: "offset"
+        in: "query"
+        description: "Số bản ghi bỏ qua trước khi danh sách được trả về."
+        required: false
+        schema:
+          type: integer
+      - name: "fields"
+        in: "query"
+        description: "Danh sách trường muốn được trả về."
+        required: false
+        schema:
+          type: string
+      - name: "order_by"
+        in: "query"
+        description: "Sắp xếp kết quả."
+        required: false
+        schema:
+          type: string
+      - name: "deleted"
+        in: "query"
+        description: "Cho phép hiển thị bản ghi đã xóa."
+        required: false
+        schema:
+          type: boolean
+      - name: "nulls_last"
+        in: "query"
+        description: "Đưa các giá trị null xuống cuối danh sách trả về khi sắp xếp."
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Thành công, trả về mảng bản ghi
+          content:
+            application/json:
+              example:
+                next_offset: -1
+                records:
+                  - id: "fa300a0e-0ad1-b322-9601-512d0983c19a"
+                    name: "Nelson Inc"
+                    date_modified: "2013-02-28T05:03:00+00:00"
+                    description: ""
+                    opportunities:
+                      - _module: "Opportunities"
+                        id: "b0701501-1fab-8ae7-3942-540da93f5017"
+                        name: "360 Vacations - 228 Units"
+                        date_modified: "2014-09-08T16:05:00+03:00"
+                        sales_status: "New"
+                    _acl:
+                      fields: {}
+                  - id: "95e17367-9b3d-0e26-22dc-512d0961fedf"
+                    name: "Florence Haddock"
+                    date_modified: "2013-02-26T19:12:00+00:00"
+                    description: ""
+                    opportunities:
+                      - _module: "Opportunities"
+                        id: "9ce7c088-8ee4-7cd3-18f1-540da944d4c0"
+                        name: "360 Vacations - 312 Units"
+                        date_modified: "2014-09-08T16:05:00+03:00"
+                        sales_status: "New"
+                    _acl:
+                      fields: {}
+      security:
+      - BearerAuth: []
+    post:
+      tags:
+        - "lists (filter)"
+      summary: "Lấy danh sách bản ghi đã được lọc (POST)"
+      description: "Tương tự GET /filter nhưng nhận filter JSON trong request body, tiện lợi cho filter phức tạp, lồng nhau. Xem chi tiết tại [tài liệu HTML](/apiDocs/postModuleFilter.html)"
+      operationId: "filterModulePost"
+      parameters:
+        - name: "module"
+          in: "path"
+          description: "Tên module (ví dụ: Accounts, Contacts, Leads)."
+          required: true
+          schema:
+            type: string
+            example: "Accounts"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filter:
+                  type: string
+                  description: "Biểu thức bộ lọc."
+                  example:
+                    - $or:
+                      - name:
+                          $equals: "Nelson Inc"
+                      - name:
+                          $equals: "Nelson LLC"
+                max_num:
+                  type: integer
+                  description: "Số bản ghi tối đa trả về (Ví dụ: 100)."
+                  example: 100
+                offset:
+                  type: integer
+                  description: "Số bản ghi bỏ qua trước khi danh sách được trả về."
+                  example: 0
+                fields:
+                  type: string
+                  description: "Danh sách trường muốn được trả về, phân tách bằng dấu phẩy."
+                  example: "id,name,date_modified"
+                order_by:
+                  type: string
+                  description: "Sắp xếp kết quả, ví dụ: 'date_modified:desc,name:asc'."
+                  example: "date_modified:desc"
+                deleted:
+                  type: boolean
+                  description: "Cho phép hiển thị bản ghi đã xóa."
+                  example: false
+                nulls_last:
+                  type: boolean
+                  description: "Đưa các giá trị null xuống cuối danh sách trả về khi sắp xếp."
+                  example: true
+      responses:
+        '200':
+          description: Thành công, trả về mảng bản ghi
+          content:
+            application/json:
+              example:
+                next_offset: -1
+                records:
+                  - id: "fa300a0e-0ad1-b322-9601-512d0983c19a"
+                    name: "Nelson Inc"
+                    date_modified: "2013-02-28T05:03:00+00:00"
+                    description: ""
+                    opportunities:
+                      - _module: "Opportunities"
+                        id: "b0701501-1fab-8ae7-3942-540da93f5017"
+                        name: "360 Vacations - 228 Units"
+                        date_modified: "2014-09-08T16:05:00+03:00"
+                        sales_status: "New"
+                    _acl:
+                      fields: {}
+                  - id: "95e17367-9b3d-0e26-22dc-512d0961fedf"
+                    name: "Florence Haddock"
+                    date_modified: "2013-02-26T19:12:00+00:00"
+                    description: ""
+                    opportunities:
+                      - _module: "Opportunities"
+                        id: "9ce7c088-8ee4-7cd3-18f1-540da944d4c0"
+                        name: "360 Vacations - 312 Units"
+                        date_modified: "2014-09-08T16:05:00+03:00"
+                        sales_status: "New"
+                    _acl:
+                      fields: {}
+      security:
+      - BearerAuth: []
+  /{module}/filter/count:
+    get:
+      tags:
+      - "lists (filter)"
+      summary: "Lấy tổng số bản ghi đã lọc (COUNT – GET)"
+      description: "Xem chi tiết tại [tài liệu HTML](/apiDocs/getModuleFilterCount.html)"
+      operationId: "filterModuleCount"
+      parameters:
+      - name: "module"
+        in: "path"
+        description: "Tên module (ví dụ: Accounts, Contacts)."
+        required: true
+        schema:
+          type: string
+      - name: "filter"
+        in: "query"
+        description: "Biểu thức bộ lọc."
+        required: false
+        schema:
+          type: string
+      - name: "max_num"
+        in: "query"
+        description: "Số bản ghi tối đa trả về (Ví dụ: 100)."
+        required: false
+        schema:
+          type: integer
+      - name: "offset"
+        in: "query"
+        description: "Số bản ghi bỏ qua trước khi danh sách được trả về."
+        required: false
+        schema:
+          type: integer
+      - name: "fields"
+        in: "query"
+        description: "Danh sách trường muốn được trả về."
+        required: false
+        schema:
+          type: string
+      - name: "order_by"
+        in: "query"
+        description: "Sắp xếp kết quả."
+        required: false
+        schema:
+          type: string
+      - name: "deleted"
+        in: "query"
+        description: "Cho phép hiển thị bản ghi đã xóa."
+        required: false
+        schema:
+          type: boolean
+      - name: "nulls_last"
+        in: "query"
+        description: "Đưa các giá trị null xuống cuối danh sách trả về khi sắp xếp."
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: "Thành công, trả về số lượng bản ghi đã lọc."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record_count:
+                    type: integer
+                    description: "Số bản ghi thỏa filter."
+                    example: 42
+      security:
+      - BearerAuth: []
+    post:
+      tags:
+      - "lists (filter)"
+      summary: "Lấy tổng số bản ghi đã lọc (COUNT – POST)"
+      description: "Tương tự GET /filter/count nhưng nhận filter JSON trong request body, tiện lợi cho filter phức tạp, lồng nhau. Xem chi tiết tại [tài liệu HTML](/apiDocs/postModuleFilterCount.html)."
+      operationId: "filterModulePostCount"
+      parameters:
+      - name: "module"
+        in: "path"
+        description: "Tên module."
+        required: true
+        schema:
+          type: string
+          example: "Opportunities"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filter:
+                  type: object
+                  description: "Định nghĩa điều kiện lọc."
+                  example: { "status": { "$equals": "Open" } }
+      responses:
+        '200':
+          description: "Thành công, trả về số lượng bản ghi đã lọc."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record_count:
+                    type: integer
+                    description: "Số bản ghi thỏa filter."
+                    example: 42
+      security:
+      - BearerAuth: []
+  /{module}/{record}:
+    get:
+      tags:
+      - "details (record)"
+      summary: "Lấy thông tin chi tiết của một bản ghi"
+      description: "Trả về chi tiết của một bản ghi cụ thể trong module, dựa vào ID."
+      operationId: "getModuleRecord"
+      parameters:
+      - name: "module"
+        in: "path"
+        description: "Tên module (ví dụ: Accounts, Contacts)."
+        required: true
+        schema:
+          type: string
+          example: "Accounts"
+      - name: "record"
+        in: "path"
+        description: "ID của bản ghi."
+        required: true
+        schema:
+          type: string
+          example: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+      responses:
+        '200':
+          description: Thành công, record có ID tương ứng.
+          content:
+            application/json:
+              example:
+                id: "bdd59d85-687b-1739-b00a-512d09f6db9e"
+                name: "Insight Marketing Inc"
+                date_entered: "2013-02-26T19:12:00+00:00"
+                date_modified: "2013-02-26T19:12:00+00:00"
+                modified_user_id: "1"
+                modified_by_name: "Administrator"
+                created_by: "1"
+                created_by_name: "Administrator"
+                description: ""
+                img: ""
+                last_activity_date: "2013-02-26T19:12:00+00:00"
+                deleted: false
+                assigned_user_id: "seed_max_id"
+                assigned_user_name: "Max Jensen"
+                team_name:
+                  - id: "East"
+                    name: "East"
+                    name_2: ""
+                    primary: false
+                  - id: 1
+                    name: "Global"
+                    name_2: ""
+                    primary: false
+                  - id: "West"
+                    name: "West"
+                    name_2: ""
+                    primary: true
+                linkedin: ""
+                facebook: ""
+                twitter: ""
+                googleplus: ""
+                account_type: "Customer"
+                industry: "Electronics"
+                annual_revenue: ""
+                phone_fax: ""
+                billing_address_street: "345 Sugar Blvd."
+                billing_address_street_2: ""
+                billing_address_street_3: ""
+                billing_address_street_4: ""
+                billing_address_city: "San Mateo"
+                billing_address_state: "CA"
+                billing_address_postalcode: "56019"
+                billing_address_country: "USA"
+                rating: ""
+                phone_office: "(927) 136-9572"
+                phone_alternate: ""
+                website: "www.sectionvegan.de"
+                ownership: ""
+                employees: ""
+                ticker_symbol: ""
+                shipping_address_street: "345 Sugar Blvd."
+                shipping_address_street_2: ""
+                shipping_address_street_3: ""
+                shipping_address_street_4: ""
+                shipping_address_city: "San Mateo"
+                shipping_address_state: "CA"
+                shipping_address_postalcode: "56019"
+                shipping_address_country: "USA"
+                email1: "kid.support.vegan@example.info"
+                parent_id: ""
+                sic_code: ""
+                parent_name: ""
+                email_opt_out: false
+                invalid_email: false
+                email:
+                  - email_address: "kid.support.vegan@example.info"
+                    opt_out: "0"
+                    invalid_email: "0"
+                    primary_address: "1"
+                  - email_address: "phone.kid@example.cn"
+                    opt_out: "0"
+                    invalid_email: "0"
+                    primary_address: "0"
+                campaign_id: ""
+                campaign_name: ""
+                my_favorite: false
+                _acl:
+                  fields: {}
+      security:
+      - BearerAuth: []
     put:
       tags:
-      - "pet"
-      summary: "Update an existing pet"
-      description: ""
-      operationId: "updatePet"
-      consumes:
-      - "application/json"
-      - "application/xml"
-      produces:
-      - "application/json"
-      - "application/xml"
+      - "details (record)"
+      summary: "Cập nhật bản ghi với các trường được chỉ định (Update Record)"
+      description: "Xem chi tiết tại [tài liệu HTML](/apiDocs/putModuleRecord.html)"
+      operationId: "updateRecord"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Pet object that needs to be added to the store"
+      - name: "module"
+        in: "path"
+        description: "Tên module (ví dụ: Accounts, Contacts)."
         required: true
         schema:
-          $ref: "#/definitions/Pet"
-      responses:
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Pet not found"
-        405:
-          description: "Validation exception"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /pet/findByStatus:
-    get:
-      tags:
-      - "pet"
-      summary: "Finds Pets by status"
-      description: "Multiple status values can be provided with comma separated strings"
-      operationId: "findPetsByStatus"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "status"
-        in: "query"
-        description: "Status values that need to be considered for filter"
-        required: true
-        type: "array"
-        items:
-          type: "string"
-          enum:
-          - "available"
-          - "pending"
-          - "sold"
-          default: "available"
-        collectionFormat: "multi"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Pet"
-        400:
-          description: "Invalid status value"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /pet/findByTags:
-    get:
-      tags:
-      - "pet"
-      summary: "Finds Pets by tags"
-      description: "Multiple tags can be provided with comma separated strings. Use\
-        \ tag1, tag2, tag3 for testing."
-      operationId: "findPetsByTags"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "tags"
-        in: "query"
-        description: "Tags to filter by"
-        required: true
-        type: "array"
-        items:
-          type: "string"
-        collectionFormat: "multi"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Pet"
-        400:
-          description: "Invalid tag value"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-      deprecated: true
-  /pet/{petId}:
-    get:
-      tags:
-      - "pet"
-      summary: "Find pet by ID"
-      description: "Returns a single pet"
-      operationId: "getPetById"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "petId"
+          type: string
+          example: "Accounts"
+      - name: "record"
         in: "path"
-        description: "ID of pet to return"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/Pet"
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Pet not found"
-      security:
-      - api_key: []
-    post:
-      tags:
-      - "pet"
-      summary: "Updates a pet in the store with form data"
-      description: ""
-      operationId: "updatePetWithForm"
-      consumes:
-      - "application/x-www-form-urlencoded"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "petId"
-        in: "path"
-        description: "ID of pet that needs to be updated"
-        required: true
-        type: "integer"
-        format: "int64"
-      - name: "name"
-        in: "formData"
-        description: "Updated name of the pet"
-        required: false
-        type: "string"
-      - name: "status"
-        in: "formData"
-        description: "Updated status of the pet"
-        required: false
-        type: "string"
-      responses:
-        405:
-          description: "Invalid input"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-    delete:
-      tags:
-      - "pet"
-      summary: "Deletes a pet"
-      description: ""
-      operationId: "deletePet"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "api_key"
-        in: "header"
-        required: false
-        type: "string"
-      - name: "petId"
-        in: "path"
-        description: "Pet id to delete"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Pet not found"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /store/order:
-    post:
-      tags:
-      - "store"
-      summary: "Place an order for a pet"
-      description: ""
-      operationId: "placeOrder"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "order placed for purchasing the pet"
+        description: "ID của bản ghi cần cập nhật."
         required: true
         schema:
-          $ref: "#/definitions/Order"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/Order"
-        400:
-          description: "Invalid Order"
-  /store/order/{orderId}:
-    get:
-      tags:
-      - "store"
-      summary: "Find purchase order by ID"
-      description: "For valid response try integer IDs with value >= 1 and <= 10.\
-        \ Other values will generated exceptions"
-      operationId: "getOrderById"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "orderId"
-        in: "path"
-        description: "ID of pet that needs to be fetched"
+          type: string
+          example: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+      requestBody:
         required: true
-        type: "integer"
-        maximum: 10
-        minimum: 1
-        format: "int64"
+        content:
+          application/json:
+            example:
+              name: "New Account Name"
+              phone_office: "(555) 888-5555"
+              website: "www.newsite.com"
+              meetings:
+                add:
+                  - "21e3385e-404f-b470-407e-54044e3d8024"
+                delete:
+                  - "21e3385e-404f-b470-407e-54044e3d8023"
+                create:
+                  - name: "Test Meeting"
       responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/Order"
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Order not found"
-    delete:
-      tags:
-      - "store"
-      summary: "Delete purchase order by ID"
-      description: "For valid response try integer IDs with positive integer value.\
-        \ Negative or non-integer values will generate API errors"
-      operationId: "deleteOrder"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "orderId"
-        in: "path"
-        description: "ID of the order that needs to be deleted"
-        required: true
-        type: "integer"
-        minimum: 1
-        format: "int64"
-      responses:
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Order not found"
-  /store/inventory:
-    get:
-      tags:
-      - "store"
-      summary: "Returns pet inventories by status"
-      description: "Returns a map of status codes to quantities"
-      operationId: "getInventory"
-      produces:
-      - "application/json"
-      parameters: []
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            type: "object"
-            additionalProperties:
-              type: "integer"
-              format: "int32"
+        '200':
+          description: Record được cập nhật thành công, trả về thông tin mới nhất
+          content:
+            application/json:
+              example:
+                id: "f222265a-b755-da89-0bc7-512d09b800b6"
+                name: "New Account Name"
+                date_entered: "2013-02-26T19:12:00+00:00"
+                date_modified: "2013-02-27T22:49:00+00:00"
+                modified_user_id: "1"
+                modified_by_name: "Administrator"
+                created_by: "1"
+                created_by_name: "Administrator"
+                description: ""
+                img: ""
+                last_activity_date: "2013-02-26T19:12:00+00:00"
+                deleted: false
+                assigned_user_id: "seed_sarah_id"
+                assigned_user_name: "Sarah Smith"
+                team_name:
+                  - id: 1
+                    name: "Global"
+                    name_2: ""
+                    primary: false
+                  - id: "West"
+                    name: "West"
+                    name_2: ""
+                    primary: true
+                linkedin: ""
+                facebook: ""
+                twitter: ""
+                googleplus: ""
+                account_type: "Customer"
+                industry: "Hospitality"
+                annual_revenue: ""
+                phone_fax: ""
+                billing_address_street: "9 IBM Path"
+                billing_address_street_2: ""
+                billing_address_street_3: ""
+                billing_address_street_4: ""
+                billing_address_city: "San Francisco"
+                billing_address_state: "CA"
+                billing_address_postalcode: "43635"
+                billing_address_country: "USA"
+                rating: ""
+                phone_office: "(555) 888-5555"
+                phone_alternate: ""
+                website: "www.newsite.com"
+                ownership: ""
+                employees: ""
+                ticker_symbol: ""
+                shipping_address_street: "9 IBM Path"
+                shipping_address_street_2: ""
+                shipping_address_street_3: ""
+                shipping_address_street_4: ""
+                shipping_address_city: "San Francisco"
+                shipping_address_state: "CA"
+                shipping_address_postalcode: "43635"
+                shipping_address_country: "USA"
+                email1: "kid86@example.net"
+                parent_id: ""
+                sic_code: ""
+                parent_name: ""
+                email_opt_out: false
+                invalid_email: false
+                email:
+                  - email_address: "kid86@example.net"
+                    opt_out: "0"
+                    invalid_email: "0"
+                    primary_address: "1"
+                  - email_address: "the.dev@example.name"
+                    opt_out: "0"
+                    invalid_email: "0"
+                    primary_address: "0"
+                campaign_id: ""
+                campaign_name: ""
+                my_favorite: false
+                _acl:
+                  fields: {}
       security:
-      - api_key: []
-  /user/createWithArray:
-    post:
-      tags:
-      - "user"
-      summary: "Creates list of users with given input array"
-      description: ""
-      operationId: "createUsersWithArrayInput"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "List of user object"
-        required: true
-        schema:
-          type: "array"
-          items:
-            $ref: "#/definitions/User"
-      responses:
-        default:
-          description: "successful operation"
-  /user/createWithList:
-    post:
-      tags:
-      - "user"
-      summary: "Creates list of users with given input array"
-      description: ""
-      operationId: "createUsersWithListInput"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "List of user object"
-        required: true
-        schema:
-          type: "array"
-          items:
-            $ref: "#/definitions/User"
-      responses:
-        default:
-          description: "successful operation"
-  /user/{username}:
-    get:
-      tags:
-      - "user"
-      summary: "Get user by user name"
-      description: ""
-      operationId: "getUserByName"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "username"
-        in: "path"
-        description: "The name that needs to be fetched. Use user1 for testing. "
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/User"
-        400:
-          description: "Invalid username supplied"
-        404:
-          description: "User not found"
-    put:
-      tags:
-      - "user"
-      summary: "Updated user"
-      description: "This can only be done by the logged in user."
-      operationId: "updateUser"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "username"
-        in: "path"
-        description: "name that need to be updated"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "body"
-        description: "Updated user object"
-        required: true
-        schema:
-          $ref: "#/definitions/User"
-      responses:
-        400:
-          description: "Invalid user supplied"
-        404:
-          description: "User not found"
-    delete:
-      tags:
-      - "user"
-      summary: "Delete user"
-      description: "This can only be done by the logged in user."
-      operationId: "deleteUser"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "username"
-        in: "path"
-        description: "The name that needs to be deleted"
-        required: true
-        type: "string"
-      responses:
-        400:
-          description: "Invalid username supplied"
-        404:
-          description: "User not found"
-  /user/login:
-    get:
-      tags:
-      - "user"
-      summary: "Logs user into the system"
-      description: ""
-      operationId: "loginUser"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "username"
-        in: "query"
-        description: "The user name for login"
-        required: true
-        type: "string"
-      - name: "password"
-        in: "query"
-        description: "The password for login in clear text"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "successful operation"
-          headers:
-            X-Expires-After:
-              type: "string"
-              format: "date-time"
-              description: "date in UTC when token expires"
-            X-Rate-Limit:
-              type: "integer"
-              format: "int32"
-              description: "calls per hour allowed by the user"
-          schema:
-            type: "string"
-        400:
-          description: "Invalid username/password supplied"
-  /user/logout:
-    get:
-      tags:
-      - "user"
-      summary: "Logs out current logged in user session"
-      description: ""
-      operationId: "logoutUser"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters: []
-      responses:
-        default:
-          description: "successful operation"
-  /user:
-    post:
-      tags:
-      - "user"
-      summary: "Create user"
-      description: "This can only be done by the logged in user."
-      operationId: "createUser"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "Created user object"
-        required: true
-        schema:
-          $ref: "#/definitions/User"
-      responses:
-        default:
-          description: "successful operation"
-securityDefinitions:
-  api_key:
-    type: "apiKey"
-    name: "api_key"
-    in: "header"
-  petstore_auth:
-    type: "oauth2"
-    authorizationUrl: "https://petstore.swagger.io/oauth/authorize"
-    flow: "implicit"
-    scopes:
-      read:pets: "read your pets"
-      write:pets: "modify pets in your account"
-definitions:
-  ApiResponse:
-    type: "object"
-    properties:
-      code:
-        type: "integer"
-        format: "int32"
-      type:
-        type: "string"
-      message:
-        type: "string"
-  Category:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      name:
-        type: "string"
-    xml:
-      name: "Category"
-  Pet:
-    type: "object"
-    required:
-    - "name"
-    - "photoUrls"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      category:
-        $ref: "#/definitions/Category"
-      name:
-        type: "string"
-        example: "doggie"
-      photoUrls:
-        type: "array"
-        xml:
-          wrapped: true
-        items:
-          type: "string"
-          xml:
-            name: "photoUrl"
-      tags:
-        type: "array"
-        xml:
-          wrapped: true
-        items:
-          xml:
-            name: "tag"
-          $ref: "#/definitions/Tag"
-      status:
-        type: "string"
-        description: "pet status in the store"
-        enum:
-        - "available"
-        - "pending"
-        - "sold"
-    xml:
-      name: "Pet"
-  Tag:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      name:
-        type: "string"
-    xml:
-      name: "Tag"
-  Order:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      petId:
-        type: "integer"
-        format: "int64"
-      quantity:
-        type: "integer"
-        format: "int32"
-      shipDate:
-        type: "string"
-        format: "date-time"
-      status:
-        type: "string"
-        description: "Order Status"
-        enum:
-        - "placed"
-        - "approved"
-        - "delivered"
-      complete:
-        type: "boolean"
-    xml:
-      name: "Order"
-  User:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      username:
-        type: "string"
-      firstName:
-        type: "string"
-      lastName:
-        type: "string"
-      email:
-        type: "string"
-      password:
-        type: "string"
-      phone:
-        type: "string"
-      userStatus:
-        type: "integer"
-        format: "int32"
-        description: "User Status"
-    xml:
-      name: "User"
-externalDocs:
-  description: "Find out more about Swagger"
-  url: "http://swagger.io"
+      - BearerAuth: []
+components:
+  securitySchemes:
+    BearerAuth:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: "Nhập Bearer token theo định dạng: `Bearer <access_token>`"
+  

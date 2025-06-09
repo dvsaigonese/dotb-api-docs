@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>/&lt;module&gt;/filter/count POST</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-ENjdO4Dr2bkBIFxQpeoA6V+5e1kLkqj0O7bZ+ckQ4YW5nLIv0QK8y1NQ9KI65qnm"
+      crossorigin="anonymous"
+    />
+    <!-- Custom Styles -->
+    <style>
+      /* Toàn trang dùng font dễ đọc */
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f2f5f7;
+      }
+      /* Card styling */
+      .card {
+        border: none;
+        border-radius: 1rem;
+      }
+      .card-title {
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 2rem;
+      }
+      /* Section headings */
+      h2.h5 {
+        color: #34495e;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: .3rem;
+      }
+      /* Table styling */
+      .table thead {
+        background-color: #3498db;
+        color: #fff;
+      }
+      .table th,
+      .table td {
+        vertical-align: middle;
+      }
+      .table tbody tr:hover {
+        background-color: #ecf0f1;
+      }
+      /* Code blocks */
+      code {
+        background: #ecf0f1;
+        padding: .2rem .4rem;
+        border-radius: .25rem;
+        color: #c0392b;
+      }
+      /* Indentation utility */
+      .ms-3 { margin-left: 1rem!important; }
+      .ms-4 { margin-left: 1.5rem!important; }
+      .ms-5 { margin-left: 2rem!important; }
+      /* List style */
+      ul {
+        list-style-type: disc;
+      }
+      ul li {
+        margin-bottom: .5rem;
+      }
+    </style>
+  </head>
+  <body class="p-5">
+    <div class="container py-5">
+      <div class="card shadow-sm p-4">
+        <div class="card-body">
+          <a href="../index.html">Về trang chủ</a>
+          <h1 class="card-title mb-4">/&lt;module&gt;/filter/count POST</h1>
+
+          <h2 class="h5">Tổng quan</h2>
+          <p class="ms-3">Đếm số bản ghi được lọc.</p>
+
+          <h2 class="h5 mt-4">Tóm tắt</h2>
+          <p class="ms-3">
+            Endpoint này sẽ trả về số lượng bản ghi được lọc theo một biểu
+            thức. Bộ lọc có thể áp dụng cho nhiều trường và có thể có nhiều điều
+            kiện trong đó. Cần lưu ý đảm bảo rằng bất kỳ bộ lọc nào được sử dụng đều có các chỉ mục
+            thích hợp trên phía máy chủ, nếu không thời gian chạy của endpoint sẽ
+            rất lâu.
+          </p>
+
+          <h2 class="h5 mt-4">Tham số</h2>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Tên</th>
+                  <th scope="col">Loại</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Bắt buộc</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>filter</td>
+                  <td>String</td>
+                  <td>
+                    Biểu thức bộ lọc. Có thể truyền từng param riêng lẻ
+                    (<code>filter[0][id]=1</code>) hoặc truyền cả mảng JSON
+                    (<code>filter=[{"id":"1"}]</code>).
+                  </td>
+                  <td>Không</td>
+                </tr>
+                <tr>
+                  <td>max_num</td>
+                  <td>Integer</td>
+                  <td>Số bản ghi tối đa trả về (mặc định 20).</td>
+                  <td>Không</td>
+                </tr>
+                <tr>
+                  <td>offset</td>
+                  <td>Integer</td>
+                  <td>Số bản ghi bỏ qua trước khi danh sách được trả về (mặc định 0).</td>
+                  <td>Không</td>
+                </tr>
+                <tr>
+                  <td>fields</td>
+                  <td>String</td>
+                  <td>
+                    Danh sách trường trả về, các trường được phân tách dấu phẩy. Hai trường ID và
+                    date_modified luôn được trả về. <br>
+                    Ví dụ: <code>{"fields":["id","name","sales_status"]}</code>
+                  </td>
+                  <td>Không</td>
+                </tr>
+                <tr>
+                  <td>order_by</td>
+                  <td>String</td>
+                  <td>
+                    Sắp xếp kết quả, ví dụ
+                    <code>name:DESC, date_modified:ASC</code>.
+                  </td>
+                  <td>Không</td>
+                </tr>
+                <tr>
+                  <td>deleted</td>
+                  <td>Boolean</td>
+                  <td>Cho phép hiển thị bản ghi đã xóa.</td>
+                  <td>Không</td>
+                </tr>
+                <tr>
+                  <td>nulls_last</td>
+                  <td>Boolean</td>
+                  <td>Đưa các giá trị null xuống cuối danh sách trả về khi sắp xếp.</td>
+                  <td>Không</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 class="h5 mt-4">Biểu thức bộ lọc (filter)</h2>
+          <h3 class="h6 ms-4">1. Cơ bản</h3>
+          <p class="ms-5">
+            Chỉ định trực tiếp giá trị để khớp chính xác, ví dụ
+            <code>filter=[{"name":"Nelson Inc"}]</code>.
+          </p>
+
+          <h3 class="h6 ms-4">2. Đầy đủ</h3>
+          <p class="ms-5">
+            Sử dụng toán tử để lọc, ví dụ <code>$starts</code> để tìm giá trị bắt
+            đầu:
+            <code>filter=[{"name":{"$starts":"Nelson"}}]</code>.
+          </p>
+          <ul class="ms-5">
+            <li><code>$equals</code>: Khớp chính xác.</li>
+            <li><code>$not_equals</code>: Khớp không chính xác.</li>
+            <li><code>$starts</code>: Bắt đầu bằng.</li>
+            <li><code>$ends</code>: Kết thúc bằng.</li>
+            <li><code>$contains</code>: Chứa chuỗi.</li>
+            <li><code>$in</code>: Nằm trong mảng.</li>
+            <li><code>$not_in</code>: Không nằm trong mảng.</li>
+            <li><code>$is_null</code>: Giá trị null.</li>
+            <li><code>$not_null</code>: Giá trị không null.</li>
+            <li><code>$lt</code>, <code>$lte</code>, <code>$gt</code>, <code>$gte</code>: So sánh số/ngày, từ trái sang lần lượt là nhỏ hơn, nhỏ hơn hoặc bằng, lớn hơn, lớn hơn hoặc bằng.</li>
+          </ul>
+
+          <h3 class="h6 ms-4">3. Biểu thức con</h3>
+          <p class="ms-5">
+            Nhóm điều kiện với <code>$or</code> hoặc <code>$and</code>, ví dụ:
+            <code>filter=[{"$or":[{"name":{"$starts":"Nelson"}},{"name":{"$starts":"Smith"}}]}]</code>
+          </p>
+
+          <h2 class="h5 mt-4">Response mẫu</h2>
+          <p class="ms-3">Khi gọi thành công, API trả về JSON có dạng:</p>
+          <pre class="bg-light p-3 rounded"><code>
+{
+    "record_count": 5761
+}</code></pre>
+
+          <h2 class="h5 mt-4">Giải thích Response</h2>
+          <ul class="ms-3">
+            <li><code>record_count</code> (<em>integer</em>): Số bản ghi đếm được.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+        </div>
+      </div>
+    </div>
+    <!-- Bootstrap JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-qQ2IXsiF0V1x/9333HSBqxM+Jf8RzL2XpOnnubsUFG9UhVO8q8/vp1k0ZLynW+XK"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
