@@ -114,7 +114,7 @@ paths:
       tags:
       - "lists (filter)"
       summary: "Lấy danh sách bản ghi của module (LIST ALL)"
-      description: "Xem chi tiết tại [tài liệu HTML](/apiDocs/getModule.html)"
+      description: "Xem chi tiết tại [tài liệu HTML](../apiDocs/getModule.html)"
       operationId: "filterModuleAll"
       parameters:
       - name: "module"
@@ -203,7 +203,7 @@ paths:
       tags:
       - "details (record)"
       summary: "Tạo mới bản ghi (Create Record)"
-      description: "Xem chi tiết tại [tài liệu HTML](/apiDocs/postModule.html)."
+      description: "Xem chi tiết tại [tài liệu HTML](../apiDocs/postModule.html)."
       operationId: "createRecord"
       parameters:
       - name: "module"
@@ -315,7 +315,7 @@ paths:
       tags:
       - "lists (filter)"
       summary: "Lấy tổng số bản ghi (COUNT)"
-      description: "Xem chi tiết tại [tài liệu HTML](/apiDocs/getModuleCount.html)"
+      description: "Xem chi tiết tại [tài liệu HTML](../apiDocs/getModuleCount.html)"
       operationId: "filterModuleAllCount"
       parameters:
       - name: "module"
@@ -385,7 +385,7 @@ paths:
       tags:
       - "lists (filter)"
       summary: "Lấy danh sách bản ghi đã được lọc (GET)"
-      description: "Xem chi tiết tại [tài liệu HTML](/apiDocs/getModuleFilter.html)"
+      description: "Xem chi tiết tại [tài liệu HTML](../apiDocs/getModuleFilter.html)"
       operationId: "filterModuleGet"
       parameters:
       - name: "module"
@@ -474,7 +474,7 @@ paths:
       tags:
         - "lists (filter)"
       summary: "Lấy danh sách bản ghi đã được lọc (POST)"
-      description: "Tương tự GET /filter nhưng nhận filter JSON trong request body, tiện lợi cho filter phức tạp, lồng nhau. Xem chi tiết tại [tài liệu HTML](/apiDocs/postModuleFilter.html)"
+      description: "Tương tự GET /filter nhưng nhận filter JSON trong request body, tiện lợi cho filter phức tạp, lồng nhau. Xem chi tiết tại [tài liệu HTML](../apiDocs/postModuleFilter.html)"
       operationId: "filterModulePost"
       parameters:
         - name: "module"
@@ -563,7 +563,7 @@ paths:
       tags:
       - "lists (filter)"
       summary: "Lấy tổng số bản ghi đã lọc (COUNT – GET)"
-      description: "Xem chi tiết tại [tài liệu HTML](/apiDocs/getModuleFilterCount.html)"
+      description: "Xem chi tiết tại [tài liệu HTML](../apiDocs/getModuleFilterCount.html)"
       operationId: "filterModuleCount"
       parameters:
       - name: "module"
@@ -632,7 +632,7 @@ paths:
       tags:
       - "lists (filter)"
       summary: "Lấy tổng số bản ghi đã lọc (COUNT – POST)"
-      description: "Tương tự GET /filter/count nhưng nhận filter JSON trong request body, tiện lợi cho filter phức tạp, lồng nhau. Xem chi tiết tại [tài liệu HTML](/apiDocs/postModuleFilterCount.html)."
+      description: "Tương tự GET /filter/count nhưng nhận filter JSON trong request body, tiện lợi cho filter phức tạp, lồng nhau. Xem chi tiết tại [tài liệu HTML](../apiDocs/postModuleFilterCount.html)."
       operationId: "filterModulePostCount"
       parameters:
       - name: "module"
@@ -779,7 +779,7 @@ paths:
       tags:
       - "details (record)"
       summary: "Cập nhật bản ghi với các trường được chỉ định (Update Record)"
-      description: "Xem chi tiết tại [tài liệu HTML](/apiDocs/putModuleRecord.html)"
+      description: "Xem chi tiết tại [tài liệu HTML](../apiDocs/putModuleRecord.html)"
       operationId: "updateRecord"
       parameters:
       - name: "module"
