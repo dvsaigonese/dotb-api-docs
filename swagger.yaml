@@ -3,26 +3,14 @@ info:
   description: "Tài liệu API DotB."
   version: "1.0"
   title: "DOTB API"
-  termsOfService: "http://swagger.io/terms/"
-  contact:
-    email: "contact@dotb.vn"
-  license:
-    name: "Apache 2.0"
-    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
 servers:
   - url: "http://localhost/dotbedu_mn/rest/v11_3"
   - url: "https://localhost/dotbedu_mn/rest/v11_3"
 tags:
 - name: "oauth2"
   description: "API xác thực và đăng nhập"
-  externalDocs:
-    description: "Tìm hiểu thêm"
-    url: "http://swagger.io"
 - name: "lists (filter)"
   description: "API lọc danh sách bản ghi (cần token xác thực)"
-  externalDocs:
-    description: "Tìm hiểu thêm"
-    url: "http://swagger.io"
 - name: "details (record)"
   description: "API thao tác trên từng bản ghi cụ thể (cần token xác thực)"
 paths:
@@ -213,99 +201,298 @@ paths:
           example: "Accounts"
       requestBody:
         required: true
+        description: "Ở đây là request mẫu để tạo Lead mới."
         content:
           application/json:
+            schema:
+              type: object
+              required:
+                - last_name
+              properties:
+                first_name:
+                  type: string
+                  description: "Tên (không bắt buộc nhưng thường có)"
+                  example: "Nguyễn"
+                last_name:
+                  type: string
+                  description: "Họ (bắt buộc)"
+                  example: "Văn A"
+                email:
+                  type: string
+                  format: email
+                  description: "Email chính"
+                  example: "vana@example.com"
+                phone_mobile:
+                  type: string
+                  description: "Điện thoại di động"
+                  example: "0987654321"
+                lead_source:
+                  type: string
+                  description: "Nguồn Lead"
+                  example: "Walk in"
+                status:
+                  type: string
+                  description: "Trạng thái Lead"
+                  example: "New"
             example:
-              name: "New Account Name"
-              phone_office: "(555) 888-5555"
-              website: "www.newsite.com"
-              meetings:
-                add:
-                  - "21e3385e-404f-b470-407e-54044e3d8024"
-                delete:
-                  - "21e3385e-404f-b470-407e-54044e3d8023"
-                create:
-                  - name: "Test Meeting"
+              first_name: "Nguyễn"
+              last_name: "Văn A"
+              email: "vana@example.com"
+              phone_mobile: "0987654321"
+              lead_source: "Walk in"
+              status: "New"
       responses:
         '200':
-          description: Record được tạo thành công, trả về thông tin record
+          description: "Thành công – trả về bản ghi vừa tạo"
           content:
             application/json:
               example:
-                id: "f222265a-b755-da89-0bc7-512d09b800b6"
-                name: "New Account Name"
-                date_entered: "2013-02-26T19:12:00+00:00"
-                date_modified: "2013-02-27T22:49:00+00:00"
-                modified_user_id: "1"
-                modified_by_name: "Administrator"
-                created_by: "1"
-                created_by_name: "Administrator"
-                description: ""
-                img: ""
-                last_activity_date: "2013-02-26T19:12:00+00:00"
-                deleted: false
-                assigned_user_id: "seed_sarah_id"
-                assigned_user_name: "Sarah Smith"
-                team_name:
-                  - id: 1
-                    name: "Global"
-                    name_2: ""
-                    primary: false
-                  - id: "West"
-                    name: "West"
-                    name_2: ""
-                    primary: true
-                linkedin: ""
-                facebook: ""
-                twitter: ""
-                googleplus: ""
-                account_type: "Customer"
-                industry: "Hospitality"
-                annual_revenue: ""
-                phone_fax: ""
-                billing_address_street: "9 IBM Path"
-                billing_address_street_2: ""
-                billing_address_street_3: ""
-                billing_address_street_4: ""
-                billing_address_city: "San Francisco"
-                billing_address_state: "CA"
-                billing_address_postalcode: "43635"
-                billing_address_country: "USA"
-                rating: ""
-                phone_office: "(555) 888-5555"
-                phone_alternate: ""
-                website: "www.newsite.com"
-                ownership: ""
-                employees: ""
-                ticker_symbol: ""
-                shipping_address_street: "9 IBM Path"
-                shipping_address_street_2: ""
-                shipping_address_street_3: ""
-                shipping_address_street_4: ""
-                shipping_address_city: "San Francisco"
-                shipping_address_state: "CA"
-                shipping_address_postalcode: "43635"
-                shipping_address_country: "USA"
-                email1: "kid86@example.net"
-                parent_id: ""
-                sic_code: ""
-                parent_name: ""
-                email_opt_out: false
-                invalid_email: false
-                email:
-                  - email_address: "kid86@example.net"
-                    opt_out: "0"
-                    invalid_email: "0"
-                    primary_address: "1"
-                  - email_address: "the.dev@example.name"
-                    opt_out: "0"
-                    invalid_email: "0"
-                    primary_address: "0"
-                campaign_id: ""
-                campaign_name: ""
-                my_favorite: false
-                _acl:
-                  fields: {}
+                  id: "6f3b993c-4fed-11f0-9a60-cc28aa8bf61e"
+                  name: "Văn A Nguyễn"
+                  date_entered: "2025-06-23T11:49:23+07:00"
+                  date_modified: "2025-06-23T11:49:23+07:00"
+                  modified_user_id: "1"
+                  modified_by_name: "Administrator"
+                  modified_user_link:
+                    full_name: "Administrator"
+                    id: "1"
+                    _acl:
+                      fields:
+                        pwd_last_changed:
+                          write: "no"
+                          create: "no"
+                        last_login:
+                          write: "no"
+                          create: "no"
+                      delete: "no"
+                      _hash: "08b99a97c2e8d792f7a44d8882b5af6d"
+                  created_by: "1"
+                  created_by_name: "Administrator"
+                  created_by_link:
+                    full_name: "Administrator"
+                    id: "1"
+                    _acl:
+                      fields:
+                        pwd_last_changed:
+                          write: "no"
+                          create: "no"
+                        last_login:
+                          write: "no"
+                          create: "no"
+                      delete: "no"
+                      _hash: "08b99a97c2e8d792f7a44d8882b5af6d"
+                  description: ""
+                  deleted: false
+                  approval_status: ""
+                  salutation: ""
+                  first_name: "Nguyễn"
+                  last_name: "Văn A"
+                  full_name: "Văn A Nguyễn"
+                  title: ""
+                  facebook: ""
+                  twitter: ""
+                  department: ""
+                  do_not_call: false
+                  phone_home: ""
+                  phone_mobile: "0987654321"
+                  phone_work: ""
+                  phone_other: ""
+                  phone_fax: ""
+                  primary_address_street: ""
+                  primary_address_street_2: ""
+                  primary_address_street_3: ""
+                  primary_address_city: ""
+                  primary_address_state: ""
+                  primary_address_postalcode: ""
+                  primary_address_country: ""
+                  alt_address_street: ""
+                  alt_address_street_2: ""
+                  alt_address_street_3: ""
+                  alt_address_city: ""
+                  alt_address_state: ""
+                  alt_address_postalcode: ""
+                  alt_address_country: ""
+                  assistant: "Van A Nguyen"
+                  assistant_phone: ""
+                  picture: ""
+                  pri_latitude: null
+                  pri_longitude: null
+                  alt_latitude: null
+                  alt_longitude: null
+                  date_performed: ""
+                  performed_user_id: ""
+                  performed_by_name: ""
+                  performed_user_link:
+                    full_name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  last_call_status: ""
+                  last_call_result: ""
+                  last_call_date: ""
+                  first_call_date: ""
+                  first_call_result: ""
+                  last_pt_date: ""
+                  last_pt_status: ""
+                  last_visited: ""
+                  group_source: ""
+                  converted: false
+                  refered_by: ""
+                  lead_source: "Walk in"
+                  source_description: ""
+                  status: "New"
+                  status_description: ""
+                  reports_to_id: ""
+                  report_to_name: ""
+                  dp_business_purpose: []
+                  dp_consent_last_updated: "2025-06-23"
+                  account_name: ""
+                  account_to_lead: ""
+                  accounts:
+                    name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  account_description: ""
+                  contact_id: ""
+                  contact_name: ""
+                  contacts:
+                    name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  account_id: ""
+                  opportunity_id: ""
+                  converted_opp_name: ""
+                  opportunity:
+                    name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb3dc3c17"
+                  opportunity_name: ""
+                  opportunity_amount: ""
+                  campaign_id: ""
+                  campaign_name: ""
+                  campaign_leads:
+                    name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  c_accept_status_fields: ""
+                  calls:
+                    id: ""
+                  m_accept_status_fields: ""
+                  meetings:
+                    id: ""
+                  accept_status_id: ""
+                  accept_status_name: ""
+                  accept_status_calls: ""
+                  accept_status_meetings: ""
+                  webtolead_email1: []
+                  webtolead_email2: []
+                  webtolead_email_opt_out: ""
+                  webtolead_invalid_email: ""
+                  birthdate: ""
+                  portal_name: ""
+                  portal_app: ""
+                  website: ""
+                  preferred_language: ""
+                  onl_uid: ""
+                  phone_prefix: "84"
+                  is_migrate_data: true
+                  following: false
+                  my_favorite: false
+                  tag: []
+                  locked_fields: []
+                  assigned_user_id: ""
+                  assigned_user_name: ""
+                  assigned_user_link:
+                    full_name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  team_count: ""
+                  team_count_link:
+                    team_count: ""
+                    id: "6960e90c-4587-11ef-8351-2070492d436e"
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  team_name:
+                    - id: "6960e90c-4587-11ef-8351-2070492d436e"
+                      name: "CS Mầm Non/2.0"
+                      name_2: ""
+                      primary: true
+                      selected: false
+                  email: []
+                  email1: ""
+                  email2: ""
+                  invalid_email: ""
+                  email_opt_out: ""
+                  email_addresses_non_primary: ""
+                  gender: ""
+                  guardian_name: ""
+                  guardian_name_2: ""
+                  nick_name: ""
+                  other_mobile: ""
+                  relationship: ""
+                  relationship2: ""
+                  grade: ""
+                  phone_guardian: ""
+                  prefer_level: []
+                  age: null
+                  age_text: "0 month(s)"
+                  full_lead_name: "Văn A Nguyễn"
+                  potential: "Interested"
+                  old_student_id: ""
+                  school_name: ""
+                  j_school_link:
+                    name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  dri_workflow_template_id: ""
+                  dri_workflow_template_name: ""
+                  dri_workflow_template_link:
+                    name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  class_activity: ""
+                  schedule_call_status: ""
+                  schedule_call_date: ""
+                  is_today_birthday: ""
+                  allow_create: ""
+                  reason: ""
+                  reference_logs: ""
+                  cj_process_key: ""
+                  reference: ""
+                  utm_source: ""
+                  utm_medium: ""
+                  utm_content: ""
+                  utm_term: ""
+                  channel: ""
+                  utm_agent_id: ""
+                  utm_agent: ""
+                  utm_agent_link:
+                    name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  school_id: ""
+                  team_name_text: "CS Mầm Non/2.0"
+                  _acl:
+                    fields: {}
+                  _module: "Leads"
       security:
       - BearerAuth: []
   /{module}/count:
@@ -691,88 +878,256 @@ paths:
           example: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
       responses:
         '200':
-          description: Thành công, record có ID tương ứng.
+          description: "Thành công trả về bản ghi có ID tương ứng"
           content:
             application/json:
               example:
-                id: "bdd59d85-687b-1739-b00a-512d09f6db9e"
-                name: "Insight Marketing Inc"
-                date_entered: "2013-02-26T19:12:00+00:00"
-                date_modified: "2013-02-26T19:12:00+00:00"
-                modified_user_id: "1"
-                modified_by_name: "Administrator"
-                created_by: "1"
-                created_by_name: "Administrator"
-                description: ""
-                img: ""
-                last_activity_date: "2013-02-26T19:12:00+00:00"
-                deleted: false
-                assigned_user_id: "seed_max_id"
-                assigned_user_name: "Max Jensen"
-                team_name:
-                  - id: "East"
-                    name: "East"
-                    name_2: ""
-                    primary: false
-                  - id: 1
-                    name: "Global"
-                    name_2: ""
-                    primary: false
-                  - id: "West"
-                    name: "West"
-                    name_2: ""
-                    primary: true
-                linkedin: ""
-                facebook: ""
-                twitter: ""
-                googleplus: ""
-                account_type: "Customer"
-                industry: "Electronics"
-                annual_revenue: ""
-                phone_fax: ""
-                billing_address_street: "345 Sugar Blvd."
-                billing_address_street_2: ""
-                billing_address_street_3: ""
-                billing_address_street_4: ""
-                billing_address_city: "San Mateo"
-                billing_address_state: "CA"
-                billing_address_postalcode: "56019"
-                billing_address_country: "USA"
-                rating: ""
-                phone_office: "(927) 136-9572"
-                phone_alternate: ""
-                website: "www.sectionvegan.de"
-                ownership: ""
-                employees: ""
-                ticker_symbol: ""
-                shipping_address_street: "345 Sugar Blvd."
-                shipping_address_street_2: ""
-                shipping_address_street_3: ""
-                shipping_address_street_4: ""
-                shipping_address_city: "San Mateo"
-                shipping_address_state: "CA"
-                shipping_address_postalcode: "56019"
-                shipping_address_country: "USA"
-                email1: "kid.support.vegan@example.info"
-                parent_id: ""
-                sic_code: ""
-                parent_name: ""
-                email_opt_out: false
-                invalid_email: false
-                email:
-                  - email_address: "kid.support.vegan@example.info"
-                    opt_out: "0"
-                    invalid_email: "0"
-                    primary_address: "1"
-                  - email_address: "phone.kid@example.cn"
-                    opt_out: "0"
-                    invalid_email: "0"
-                    primary_address: "0"
-                campaign_id: ""
-                campaign_name: ""
-                my_favorite: false
-                _acl:
-                  fields: {}
+                  id: "6f3b993c-4fed-11f0-9a60-cc28aa8bf61e"
+                  name: "Văn A Nguyễn"
+                  date_entered: "2025-06-23T11:49:23+07:00"
+                  date_modified: "2025-06-23T11:49:23+07:00"
+                  modified_user_id: "1"
+                  modified_by_name: "Administrator"
+                  modified_user_link:
+                    full_name: "Administrator"
+                    id: "1"
+                    _acl:
+                      fields:
+                        pwd_last_changed:
+                          write: "no"
+                          create: "no"
+                        last_login:
+                          write: "no"
+                          create: "no"
+                      delete: "no"
+                      _hash: "08b99a97c2e8d792f7a44d8882b5af6d"
+                  created_by: "1"
+                  created_by_name: "Administrator"
+                  created_by_link:
+                    full_name: "Administrator"
+                    id: "1"
+                    _acl:
+                      fields:
+                        pwd_last_changed:
+                          write: "no"
+                          create: "no"
+                        last_login:
+                          write: "no"
+                          create: "no"
+                      delete: "no"
+                      _hash: "08b99a97c2e8d792f7a44d8882b5af6d"
+                  description: ""
+                  deleted: false
+                  approval_status: ""
+                  salutation: ""
+                  first_name: "Nguyễn"
+                  last_name: "Văn A"
+                  full_name: "Văn A Nguyễn"
+                  title: ""
+                  facebook: ""
+                  twitter: ""
+                  department: ""
+                  do_not_call: false
+                  phone_home: ""
+                  phone_mobile: "0987654321"
+                  phone_work: ""
+                  phone_other: ""
+                  phone_fax: ""
+                  primary_address_street: ""
+                  primary_address_street_2: ""
+                  primary_address_street_3: ""
+                  primary_address_city: ""
+                  primary_address_state: ""
+                  primary_address_postalcode: ""
+                  primary_address_country: ""
+                  alt_address_street: ""
+                  alt_address_street_2: ""
+                  alt_address_street_3: ""
+                  alt_address_city: ""
+                  alt_address_state: ""
+                  alt_address_postalcode: ""
+                  alt_address_country: ""
+                  assistant: "Van A Nguyen"
+                  assistant_phone: ""
+                  picture: ""
+                  pri_latitude: null
+                  pri_longitude: null
+                  alt_latitude: null
+                  alt_longitude: null
+                  date_performed: ""
+                  performed_user_id: ""
+                  performed_by_name: ""
+                  performed_user_link:
+                    full_name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  last_call_status: ""
+                  last_call_result: ""
+                  last_call_date: ""
+                  first_call_date: ""
+                  first_call_result: ""
+                  last_pt_date: ""
+                  last_pt_status: ""
+                  last_visited: ""
+                  group_source: ""
+                  converted: false
+                  refered_by: ""
+                  lead_source: "Walk in"
+                  source_description: ""
+                  status: "New"
+                  status_description: ""
+                  reports_to_id: ""
+                  report_to_name: ""
+                  dp_business_purpose: []
+                  dp_consent_last_updated: "2025-06-23"
+                  account_name: ""
+                  account_to_lead: ""
+                  accounts:
+                    name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  account_description: ""
+                  contact_id: ""
+                  contact_name: ""
+                  contacts:
+                    name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  account_id: ""
+                  opportunity_id: ""
+                  converted_opp_name: ""
+                  opportunity:
+                    name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb3dc3c17"
+                  opportunity_name: ""
+                  opportunity_amount: ""
+                  campaign_id: ""
+                  campaign_name: ""
+                  campaign_leads:
+                    name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  c_accept_status_fields: ""
+                  calls:
+                    id: ""
+                  m_accept_status_fields: ""
+                  meetings:
+                    id: ""
+                  accept_status_id: ""
+                  accept_status_name: ""
+                  accept_status_calls: ""
+                  accept_status_meetings: ""
+                  webtolead_email1: []
+                  webtolead_email2: []
+                  webtolead_email_opt_out: ""
+                  webtolead_invalid_email: ""
+                  birthdate: ""
+                  portal_name: ""
+                  portal_app: ""
+                  website: ""
+                  preferred_language: ""
+                  onl_uid: ""
+                  phone_prefix: "84"
+                  is_migrate_data: true
+                  following: false
+                  my_favorite: false
+                  tag: []
+                  locked_fields: []
+                  assigned_user_id: ""
+                  assigned_user_name: ""
+                  assigned_user_link:
+                    full_name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  team_count: ""
+                  team_count_link:
+                    team_count: ""
+                    id: "6960e90c-4587-11ef-8351-2070492d436e"
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  team_name:
+                    - id: "6960e90c-4587-11ef-8351-2070492d436e"
+                      name: "CS Mầm Non/2.0"
+                      name_2: ""
+                      primary: true
+                      selected: false
+                  email: []
+                  email1: ""
+                  email2: ""
+                  invalid_email: ""
+                  email_opt_out: ""
+                  email_addresses_non_primary: ""
+                  gender: ""
+                  guardian_name: ""
+                  guardian_name_2: ""
+                  nick_name: ""
+                  other_mobile: ""
+                  relationship: ""
+                  relationship2: ""
+                  grade: ""
+                  phone_guardian: ""
+                  prefer_level: []
+                  age: null
+                  age_text: "0 month(s)"
+                  full_lead_name: "Văn A Nguyễn"
+                  potential: "Interested"
+                  old_student_id: ""
+                  school_name: ""
+                  j_school_link:
+                    name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  dri_workflow_template_id: ""
+                  dri_workflow_template_name: ""
+                  dri_workflow_template_link:
+                    name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  class_activity: ""
+                  schedule_call_status: ""
+                  schedule_call_date: ""
+                  is_today_birthday: ""
+                  allow_create: ""
+                  reason: ""
+                  reference_logs: ""
+                  cj_process_key: ""
+                  reference: ""
+                  utm_source: ""
+                  utm_medium: ""
+                  utm_content: ""
+                  utm_term: ""
+                  channel: ""
+                  utm_agent_id: ""
+                  utm_agent: ""
+                  utm_agent_link:
+                    name: ""
+                    id: ""
+                    _acl:
+                      fields: []
+                      _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                  school_id: ""
+                  team_name_text: "CS Mầm Non/2.0"
+                  _acl:
+                    fields: {}
+                  _module: "Leads"
       security:
       - BearerAuth: []
     put:
@@ -798,99 +1153,333 @@ paths:
           example: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
       requestBody:
         required: true
+        description: "Ở đây là request mẫu để chỉnh sửa Lead có sẵn."
         content:
           application/json:
+            schema:
+              type: object
+              required:
+                - last_name
+              properties:
+                first_name:
+                  type: string
+                  description: "Tên (không bắt buộc nhưng thường có)"
+                  example: "Nguyễn"
+                last_name:
+                  type: string
+                  description: "Họ (bắt buộc)"
+                  example: "Văn A phiên bản mới"
+                email:
+                  type: string
+                  format: email
+                  description: "Email chính"
+                  example: "NEWVANA@example.com"
+                phone_mobile:
+                  type: string
+                  description: "Điện thoại di động"
+                  example: "0987654321"
+                lead_source:
+                  type: string
+                  description: "Nguồn Lead"
+                  example: "Call in"
+                status:
+                  type: string
+                  description: "Trạng thái Lead"
+                  example: "Converted"
             example:
-              name: "New Account Name"
-              phone_office: "(555) 888-5555"
-              website: "www.newsite.com"
-              meetings:
-                add:
-                  - "21e3385e-404f-b470-407e-54044e3d8024"
-                delete:
-                  - "21e3385e-404f-b470-407e-54044e3d8023"
-                create:
-                  - name: "Test Meeting"
+              first_name: "Nguyễn"
+              last_name: "Văn A phiên bản mới"
+              email: "NEWVANA@example.com"
+              phone_mobile: "0987654321"
+              lead_source: "Call in"
+              status: "Converted"
       responses:
         '200':
-          description: Record được cập nhật thành công, trả về thông tin mới nhất
+          description: "Thành công – trả về đối tượng Lead đã được chỉnh sửa"
           content:
             application/json:
               example:
-                id: "f222265a-b755-da89-0bc7-512d09b800b6"
-                name: "New Account Name"
-                date_entered: "2013-02-26T19:12:00+00:00"
-                date_modified: "2013-02-27T22:49:00+00:00"
+                id: "6f3b993c-4fed-11f0-9a60-cc28aa8bf61e"
+                name: "Văn A Phiên Bản Mới Nguyễn"
+                date_entered: "2025-06-23T11:49:23+07:00"
+                date_modified: "2025-06-23T11:59:29+07:00"
                 modified_user_id: "1"
                 modified_by_name: "Administrator"
+                modified_user_link:
+                  full_name: "Administrator"
+                  id: "1"
+                  _acl:
+                    fields:
+                      pwd_last_changed:
+                        write: "no"
+                        create: "no"
+                      last_login:
+                        write: "no"
+                        create: "no"
+                    delete: "no"
+                    _hash: "08b99a97c2e8d792f7a44d8882b5af6d"
                 created_by: "1"
                 created_by_name: "Administrator"
+                created_by_link:
+                  full_name: "Administrator"
+                  id: "1"
+                  _acl:
+                    fields:
+                      pwd_last_changed:
+                        write: "no"
+                        create: "no"
+                      last_login:
+                        write: "no"
+                        create: "no"
+                    delete: "no"
+                    _hash: "08b99a97c2e8d792f7a44d8882b5af6d"
                 description: ""
-                img: ""
-                last_activity_date: "2013-02-26T19:12:00+00:00"
                 deleted: false
-                assigned_user_id: "seed_sarah_id"
-                assigned_user_name: "Sarah Smith"
-                team_name:
-                  - id: 1
-                    name: "Global"
-                    name_2: ""
-                    primary: false
-                  - id: "West"
-                    name: "West"
-                    name_2: ""
-                    primary: true
-                linkedin: ""
+                approval_status: ""
+                salutation: ""
+                first_name: "Nguyễn"
+                last_name: "Văn A Phiên Bản Mới"
+                full_name: "Văn A Phiên Bản Mới Nguyễn"
+                title: ""
                 facebook: ""
                 twitter: ""
-                googleplus: ""
-                account_type: "Customer"
-                industry: "Hospitality"
-                annual_revenue: ""
+                department: ""
+                do_not_call: false
+                phone_home: ""
+                phone_mobile: "0987654321"
+                phone_work: ""
+                phone_other: ""
                 phone_fax: ""
-                billing_address_street: "9 IBM Path"
-                billing_address_street_2: ""
-                billing_address_street_3: ""
-                billing_address_street_4: ""
-                billing_address_city: "San Francisco"
-                billing_address_state: "CA"
-                billing_address_postalcode: "43635"
-                billing_address_country: "USA"
-                rating: ""
-                phone_office: "(555) 888-5555"
-                phone_alternate: ""
-                website: "www.newsite.com"
-                ownership: ""
-                employees: ""
-                ticker_symbol: ""
-                shipping_address_street: "9 IBM Path"
-                shipping_address_street_2: ""
-                shipping_address_street_3: ""
-                shipping_address_street_4: ""
-                shipping_address_city: "San Francisco"
-                shipping_address_state: "CA"
-                shipping_address_postalcode: "43635"
-                shipping_address_country: "USA"
-                email1: "kid86@example.net"
-                parent_id: ""
-                sic_code: ""
-                parent_name: ""
-                email_opt_out: false
-                invalid_email: false
-                email:
-                  - email_address: "kid86@example.net"
-                    opt_out: "0"
-                    invalid_email: "0"
-                    primary_address: "1"
-                  - email_address: "the.dev@example.name"
-                    opt_out: "0"
-                    invalid_email: "0"
-                    primary_address: "0"
+                primary_address_street: ""
+                primary_address_street_2: ""
+                primary_address_street_3: ""
+                primary_address_city: ""
+                primary_address_state: ""
+                primary_address_postalcode: ""
+                primary_address_country: ""
+                alt_address_street: ""
+                alt_address_street_2: ""
+                alt_address_street_3: ""
+                alt_address_city: ""
+                alt_address_state: ""
+                alt_address_postalcode: ""
+                alt_address_country: ""
+                assistant: "Van A Phien Ban Moi Nguyen"
+                assistant_phone: ""
+                picture: ""
+                pri_latitude: null
+                pri_longitude: null
+                alt_latitude: null
+                alt_longitude: null
+                date_performed: ""
+                performed_user_id: ""
+                performed_by_name: ""
+                performed_user_link:
+                  full_name: ""
+                  id: ""
+                  _acl:
+                    fields: []
+                    _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                last_call_status: ""
+                last_call_result: ""
+                last_call_date: ""
+                first_call_date: ""
+                first_call_result: ""
+                last_pt_date: ""
+                last_pt_status: ""
+                last_visited: ""
+                group_source: ""
+                converted: false
+                refered_by: ""
+                lead_source: "Call in"
+                source_description: ""
+                status: "Converted"
+                status_description: ""
+                reports_to_id: ""
+                report_to_name: ""
+                dp_business_purpose: []
+                dp_consent_last_updated: "2025-06-23"
+                account_name: ""
+                account_to_lead: ""
+                accounts:
+                  name: ""
+                  id: ""
+                  _acl:
+                    fields: []
+                    _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                account_description: ""
+                contact_id: ""
+                contact_name: ""
+                contacts:
+                  name: ""
+                  id: ""
+                  _acl:
+                    fields: []
+                    _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                account_id: ""
+                opportunity_id: ""
+                converted_opp_name: ""
+                opportunity:
+                  name: ""
+                  id: ""
+                  _acl:
+                    fields: []
+                    _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                opportunity_name: ""
+                opportunity_amount: ""
                 campaign_id: ""
                 campaign_name: ""
+                campaign_leads:
+                  name: ""
+                  id: ""
+                  _acl:
+                    fields: []
+                    _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                c_accept_status_fields: ""
+                calls:
+                  id: ""
+                m_accept_status_fields: ""
+                meetings:
+                  id: ""
+                accept_status_id: ""
+                accept_status_name: ""
+                accept_status_calls: ""
+                accept_status_meetings: ""
+                webtolead_email1: []
+                webtolead_email2: []
+                webtolead_email_opt_out: ""
+                webtolead_invalid_email: ""
+                birthdate: ""
+                portal_name: ""
+                portal_app: ""
+                website: ""
+                preferred_language: ""
+                onl_uid: ""
+                phone_prefix: "84"
+                is_migrate_data: true
+                following: false
                 my_favorite: false
+                tag: []
+                locked_fields: []
+                assigned_user_id: ""
+                assigned_user_name: ""
+                assigned_user_link:
+                  full_name: ""
+                  id: ""
+                  _acl:
+                    fields: []
+                    _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                team_count: ""
+                team_count_link:
+                  team_count: ""
+                  id: "6960e90c-4587-11ef-8351-2070492d436e"
+                  _acl:
+                    fields: []
+                    _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                team_name:
+                  - id: "6960e90c-4587-11ef-8351-2070492d436e"
+                    name: "CS Mầm Non/2.0"
+                    name_2: ""
+                    primary: true
+                    selected: false
+                email: []
+                email1: ""
+                email2: ""
+                invalid_email: ""
+                email_opt_out: ""
+                email_addresses_non_primary: ""
+                gender: ""
+                guardian_name: ""
+                guardian_name_2: ""
+                nick_name: ""
+                other_mobile: ""
+                relationship: ""
+                relationship2: ""
+                grade: ""
+                phone_guardian: ""
+                prefer_level: []
+                age: null
+                age_text: "0 month(s)"
+                full_lead_name: "Văn A Phiên Bản Mới Nguyễn"
+                potential: "Interested"
+                old_student_id: ""
+                school_name: ""
+                j_school_link:
+                  name: ""
+                  id: ""
+                  _acl:
+                    fields: []
+                    _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                dri_workflow_template_id: ""
+                dri_workflow_template_name: ""
+                dri_workflow_template_link:
+                  name: ""
+                  id: ""
+                  _acl:
+                    fields: []
+                    _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                class_activity: ""
+                schedule_call_status: ""
+                schedule_call_date: ""
+                is_today_birthday: ""
+                allow_create: ""
+                reason: ""
+                reference_logs: ""
+                cj_process_key: ""
+                reference: ""
+                utm_source: ""
+                utm_medium: ""
+                utm_content: ""
+                utm_term: ""
+                channel: ""
+                utm_agent_id: ""
+                utm_agent: ""
+                utm_agent_link:
+                  name: ""
+                  id: ""
+                  _acl:
+                    fields: []
+                    _hash: "654d337e0e912edaa00dbb0fb3dc3c17"
+                school_id: ""
+                team_name_text: "CS Mầm Non/2.0"
                 _acl:
                   fields: {}
+                _module: "Leads"
+      security:
+      - BearerAuth: []
+    delete:
+      tags:
+        - "details (record)"
+      summary: "Xóa bản ghi theo ID"
+      description: "Xóa một bản ghi trong module đã chỉ định."
+      operationId: "deleteModuleRecord"
+      parameters:
+        - name: "module"
+          in: "path"
+          description: "Tên module (ví dụ: Accounts, Contacts)."
+          required: true
+          schema:
+            type: string
+            example: "Accounts"
+        - name: "record"
+          in: "path"
+          description: "ID của bản ghi cần xóa."
+          required: true
+          schema:
+            type: string
+            example: "11cf0d0a-40af-8cb1-9da0-5057a5f511f9"
+      responses:
+        '200':
+          description: "Xóa thành công, trả về ID bản ghi vừa xóa"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: "ID của bản ghi đã bị xóa"
+                    example: "11cf0d0a-40af-8cb1-9da0-5057a5f511f9"
       security:
       - BearerAuth: []
 components:
