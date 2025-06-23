@@ -154,36 +154,7 @@
           </div>
 
           <h2 class="h5 mt-4">Biểu thức bộ lọc (filter)</h2>
-          <h3 class="h6 ms-4">1. Cơ bản</h3>
-          <p class="ms-5">
-            Chỉ định trực tiếp giá trị để khớp chính xác, ví dụ
-            <code>filter=[{"name":"Nelson Inc"}]</code>.
-          </p>
-
-          <h3 class="h6 ms-4">2. Đầy đủ</h3>
-          <p class="ms-5">
-            Sử dụng toán tử để lọc, ví dụ <code>$starts</code> để tìm giá trị bắt
-            đầu:
-            <code>filter=[{"name":{"$starts":"Nelson"}}]</code>.
-          </p>
-          <ul class="ms-5">
-            <li><code>$equals</code>: Khớp chính xác.</li>
-            <li><code>$not_equals</code>: Khớp không chính xác.</li>
-            <li><code>$starts</code>: Bắt đầu bằng.</li>
-            <li><code>$ends</code>: Kết thúc bằng.</li>
-            <li><code>$contains</code>: Chứa chuỗi.</li>
-            <li><code>$in</code>: Nằm trong mảng.</li>
-            <li><code>$not_in</code>: Không nằm trong mảng.</li>
-            <li><code>$is_null</code>: Giá trị null.</li>
-            <li><code>$not_null</code>: Giá trị không null.</li>
-            <li><code>$lt</code>, <code>$lte</code>, <code>$gt</code>, <code>$gte</code>: So sánh số/ngày, từ trái sang lần lượt là nhỏ hơn, nhỏ hơn hoặc bằng, lớn hơn, lớn hơn hoặc bằng.</li>
-          </ul>
-
-          <h3 class="h6 ms-4">3. Biểu thức con</h3>
-          <p class="ms-5">
-            Nhóm điều kiện với <code>$or</code> hoặc <code>$and</code>, ví dụ:
-            <code>filter=[{"$or":[{"name":{"$starts":"Nelson"}},{"name":{"$starts":"Smith"}}]}]</code>
-          </p>
+          <h3>Xem chi tiết tại <a href="/apiDocs/filter.html">Biểu thức bộ lọc (filter) trong Endpoint</a></h3>
 
           <h2 class="h5 mt-4">Response mẫu</h2>
           <p class="ms-3">Khi gọi thành công, API trả về JSON có dạng:</p>

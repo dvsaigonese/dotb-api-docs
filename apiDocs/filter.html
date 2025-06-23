@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Biểu thức bộ lọc (filter) trong Endpoint</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-ENjdO4Dr2bkBIFxQpeoA6V+5e1kLkqj0O7bZ+ckQ4YW5nLIv0QK8y1NQ9KI65qnm"
+      crossorigin="anonymous"
+    />
+    <!-- Custom Styles -->
+    <style>
+      /* Toàn trang dùng font dễ đọc */
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f2f5f7;
+      }
+      /* Card styling */
+      .card {
+        border: none;
+        border-radius: 1rem;
+      }
+      .card-title {
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 2rem;
+      }
+      /* Section headings */
+      h2.h5 {
+        color: #34495e;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: .3rem;
+      }
+      /* Table styling */
+      .table thead {
+        background-color: #3498db;
+        color: #fff;
+      }
+      .table th,
+      .table td {
+        vertical-align: middle;
+      }
+      .table tbody tr:hover {
+        background-color: #ecf0f1;
+      }
+      /* Code blocks */
+      code {
+        background: #ecf0f1;
+        padding: .2rem .4rem;
+        border-radius: .25rem;
+        color: #c0392b;
+      }
+      /* Indentation utility */
+      .ms-3 { margin-left: 1rem!important; }
+      .ms-4 { margin-left: 1.5rem!important; }
+      .ms-5 { margin-left: 2rem!important; }
+      /* List style */
+      ul {
+        list-style-type: disc;
+      }
+      ul li {
+        margin-bottom: .5rem;
+      }
+    </style>
+  </head>
+  <body class="p-5">
+    <div class="container py-5">
+      <div class="card shadow-sm p-4">
+        <div class="card-body">
+          <a href="../index.html">Về trang chủ</a>
+          <h1 class="card-title mb-4">Biểu thức bộ lọc (filter) trong Endpoint</h1>
+
+          <h2 class="h5">Tổng quan</h2>
+          <p class="ms-3">Bộ lọc là cách để truyền vào trong endpoint những yêu cầu mình mong đợi về dữ liệu trả về.</p>
+
+          <h2 class="h5">Cấu trúc của Bộ Lọc</h2>
+          <p class="ms-3">Bộ lọc được biểu diễn dưới dạng một mảng JSON với cấu trúc linh hoạt nhưng tuân theo các quy tắc nhất định. Hiểu rõ cấu trúc này là chìa khóa để tạo các bộ lọc hiệu quả:</p>
+          
+          <div class="ms-4">
+            <h3 class="h6">1. Cấu trúc cơ bản</h3>
+            <p>Một bộ lọc đơn giản nhất có dạng:</p>
+            <pre class="bg-light p-3 rounded">
+          "filter" : [{
+            "field_name": {
+              "operator": "value"
+            }
+          }]</pre>
+            <p>Ví dụ: <code>filter=[{"name":{"$equals":"ABC Company"}}]</code></p>
+          
+            <h3 class="h6 mt-4">2. Cấu trúc nhiều điều kiện</h3>
+            <p>Để kết hợp nhiều điều kiện:</p>
+            <pre class="bg-light p-3 rounded">
+          "filter" : [{
+            "$operator": [
+              { "field1": { ... } },
+              { "field2": { ... } }
+            ]
+          }]</pre>
+            <p>Ví dụ: 
+            <pre class="bg-light p-3 rounded">
+          "filter" : [{
+            "$and": [
+              {"industry": {"$equals": "Technology"}},
+              {"annual_revenue": {"$gt": 1000000}}
+            ]
+          }]</pre>
+          
+            <h3 class="h6 mt-4">3. Các thành phần chính</h3>
+            <ul>
+              <li><strong>Mảng ngoài cùng</strong>: Luôn bắt đầu bằng dấu ngoặc vuông <code>[]</code></li>
+              <li><strong>Đối tượng điều kiện</strong>: Mỗi điều kiện là một đối tượng JSON trong mảng</li>
+              <li><strong>Toán tử logic</strong> (<code>$and</code>, <code>$or</code>, <code>$not</code>): Dùng để nhóm các điều kiện</li>
+              <li><strong>Tên trường</strong>: Khóa đầu tiên trong mỗi điều kiện</li>
+              <li><strong>Toán tử so sánh</strong>: Đặt trong đối tượng con của trường (<code>$equals</code>, <code>$contains</code>, ...)</li>
+              <li><strong>Giá trị</strong>: Có thể là chuỗi, số, boolean, mảng hoặc null</li>
+            </ul>
+          
+            <h3 class="h6 mt-4">4. Cấu trúc lồng nhau</h3>
+            <p>Các điều kiện có thể lồng nhau nhiều cấp:</p>
+            <pre class="bg-light p-3 rounded">
+          "filter" : [{
+            "$and": [
+              {"field1": ...},
+              {
+                "$or": [
+                  {"field2": ...},
+                  {"field3": ...}
+                ]
+              }
+            ]
+          }]</pre>
+          
+            <h3 class="h6 mt-4">5. Quy tắc giá trị</h3>
+            <ul>
+              <li><strong>Chuỗi</strong>: Đặt trong dấu nháy kép <code>"value"</code></li>
+              <li><strong>Số</strong>: Ghi trực tiếp không dấu nháy <code>1000</code></li>
+              <li><strong>Boolean</strong>: <code>true</code> hoặc <code>false</code></li>
+              <li><strong>Mảng</strong>: <code>["value1", "value2"]</code></li>
+              <li><strong>Giá trị rỗng</strong>: Dùng chuỗi rỗng <code>""</code></li>
+            </ul>
+          
+            <h3 class="h6 mt-4">6. Ví dụ đầy đủ</h3>
+            <pre class="bg-light p-3 rounded">
+          "filter": [{
+              "$and": [
+                {
+                  "$or": [
+                    {"industry": {"$in": ["Technology", "Finance"]}},
+                    {"annual_revenue": {"$gte": 500000}}
+                  ]
+                },
+                {
+                  "date_entered": {"$not_empty": ""}
+                }
+              ]
+            },
+            {
+              "assigned_user_id": {"$in": ["seed_will", "seed_sarah"]}
+            }
+          ]</pre>
+            <p>Cấu trúc này nghĩa là: <br>(Ngành là Technology HOẶC Finance HOẶC Doanh thu ≥ $500,000) VÀ Có ngày tạo VÀ Được gán cho Will hoặc Sarah</p>
+          </div>
+
+          <h2 class="h5 mt-4">Toán tử</h2>
+          <p class="ms-3">Toán tử là các biểu thức được sử dụng bởi bộ lọc để đại diện cho các toán tử truy vấn.</h3>
+          <h3 class="h6 ms-4">Loại trường: multienum</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$contains</code></td>
+                  <td>Chứa ít nhất một trong các giá trị</td>
+                  <td><code>"filter":[{"account_categories":{"$contains":["Technology","Finance"]}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_contains</code></td>
+                  <td>Không chứa bất kỳ giá trị nào trong</td>
+                  <td><code>"filter":[{"account_categories":{"$not_contains":["Technology","Finance"]}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: enum</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$in</code></td>
+                  <td>Là một trong</td>
+                  <td><code>"filter":[{"industry":{"$in":["Technology","Finance"]}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_in</code></td>
+                  <td>Không là một trong</td>
+                  <td><code>"filter":[{"industry":{"$not_in":["Technology","Finance"]}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$empty</code></td>
+                  <td>Trống</td>
+                  <td><code>"filter":[{"industry":{"$empty":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_empty</code></td>
+                  <td>Không trống</td>
+                  <td><code>"filter":[{"industry":{"$not_empty":""}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: varchar, name, email, text, textarea</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$equals</code></td>
+                  <td>Khớp chính xác</td>
+                  <td><code>"filter":[{"name":{"$equals":"Acme Corp"}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$starts</code></td>
+                  <td>Bắt đầu bằng</td>
+                  <td><code>"filter":[{"name":{"$starts":"A"}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$empty</code></td>
+                  <td>Trống</td>
+                  <td><code>"filter":[{"name":{"$empty":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_empty</code></td>
+                  <td>Không trống</td>
+                  <td><code>"filter":[{"name":{"$not_empty":""}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: currency, int, double, float, decimal</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$equals</code></td>
+                  <td>Bằng</td>
+                  <td><code>"filter":[{"annual_revenue":{"$equals":1000000}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_equals</code></td>
+                  <td>Không bằng</td>
+                  <td><code>"filter":[{"annual_revenue":{"$not_equals":1000000}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$gt</code></td>
+                  <td>Lớn hơn</td>
+                  <td><code>"filter":[{"annual_revenue":{"$gt":1000000}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$lt</code></td>
+                  <td>Nhỏ hơn</td>
+                  <td><code>"filter":[{"annual_revenue":{"$lt":1000000}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$gte</code></td>
+                  <td>Lớn hơn hoặc bằng</td>
+                  <td><code>"filter":[{"annual_revenue":{"$gte":1000000}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$lte</code></td>
+                  <td>Nhỏ hơn hoặc bằng</td>
+                  <td><code>"filter":[{"annual_revenue":{"$lte":1000000}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$between</code></td>
+                  <td>Trong khoảng</td>
+                  <td><code>"filter":[{"annual_revenue":{"$between":[500000,1500000]}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: date (yyyy-mm-dd)</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$equals</code></td>
+                  <td>Bằng (ngày cụ thể)</td>
+                  <td><code>"filter":[{"date_entered":{"$equals":"2023-01-01"}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$dateBetween</code></td>
+                  <td>Trong khoảng</td>
+                  <td><code>"filter":[{"date_entered":{"$dateBetween":["2023-01-01","2023-12-31"]}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>last_month</code></td>
+                  <td>Tháng trước</td>
+                  <td><code>"filter":[{"date_entered":{"last_month":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>this_month</code></td>
+                  <td>Tháng này</td>
+                  <td><code>"filter":[{"date_entered":{"this_month":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>next_month</code></td>
+                  <td>Tháng sau</td>
+                  <td><code>"filter":[{"date_entered":{"next_month":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$lt</code></td>
+                  <td>Trước</td>
+                  <td><code>"filter":[{"date_entered":{"$lt":"2023-01-01"}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$gt</code></td>
+                  <td>Sau</td>
+                  <td><code>"filter":[{"date_entered":{"$gt":"2023-01-01"}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>yesterday</code></td>
+                  <td>Hôm qua</td>
+                  <td><code>"filter":[{"date_entered":{"yesterday":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>today</code></td>
+                  <td>Hôm nay</td>
+                  <td><code>"filter":[{"date_entered":{"today":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>tomorrow</code></td>
+                  <td>Ngày mai</td>
+                  <td><code>"filter":[{"date_entered":{"tomorrow":""}}]</code></td>
+                </tr>
+               <tr>
+                  <td><code>last_7_days</code></td>
+                  <td>7 ngày qua</td>
+                  <td><code>"filter":[{"date_entered":{"last_7_days":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>next_7_days</code></td>
+                  <td>7 ngày tới</td>
+                  <td><code>"filter":[{"date_entered":{"next_7_days":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>last_30_days</code></td>
+                  <td>30 ngày qua</td>
+                  <td><code>"filter":[{"date_entered":{"last_30_days":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>next_30_days</code></td>
+                  <td>30 ngày tới</td>
+                  <td><code>"filter":[{"date_entered":{"next_30_days":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>last_year</code></td>
+                  <td>Năm ngoái</td>
+                  <td><code>"filter":[{"date_entered":{"last_year":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>this_year</code></td>
+                  <td>Năm nay</td>
+                  <td><code>"filter":[{"date_entered":{"this_year":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>next_year</code></td>
+                  <td>Năm sau</td>
+                  <td><code>"filter":[{"date_entered":{"next_year":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_empty</code></td>
+                  <td>Không trống</td>
+                  <td><code>"filter":[{"date_entered":{"$not_empty":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$empty</code></td>
+                  <td>Trống</td>
+                  <td><code>"filter":[{"date_entered":{"$empty":""}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: datetime, datetimecombo (yyyy-mm-ddThh:mm:ss+07:00)</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$starts</code></td>
+                  <td>Khớp chính xác (ngày giờ)</td>
+                  <td><code>"filter":[{"date_modified":{"$starts":"2025-06-20T00:00:00+07:00"}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$dateBetween</code></td>
+                  <td>Trong khoảng</td>
+                  <td><code>"filter":[{"date_modified":{"$dateBetween":["2025-06-20T00:00:00+07:00","2025-06-20T00:00:00+07:00"]}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>last_month</code></td>
+                  <td>Tháng trước</td>
+                  <td><code>"filter":[{"date_modified":{"last_month":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>this_month</code></td>
+                  <td>Tháng này</td>
+                  <td><code>"filter":[{"date_modified":{"this_month":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>next_month</code></td>
+                  <td>Tháng sau</td>
+                  <td><code>"filter":[{"date_modified":{"next_month":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$lte</code></td>
+                  <td>Trước</td>
+                  <td><code>"filter":[{"date_modified":{"$lte":"2025-06-20T00:00:00+07:00"}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$gte</code></td>
+                  <td>Sau</td>
+                  <td><code>"filter":[{"date_modified":{"$gte":"2025-06-20T00:00:00+07:00"}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>yesterday</code></td>
+                  <td>Hôm qua</td>
+                  <td><code>"filter":[{"date_modified":{"yesterday":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>today</code></td>
+                  <td>Hôm nay</td>
+                  <td><code>"filter":[{"date_modified":{"today":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>tomorrow</code></td>
+                  <td>Ngày mai</td>
+                  <td><code>"filter":[{"date_modified":{"tomorrow":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>last_7_days</code></td>
+                  <td>7 ngày qua</td>
+                  <td><code>"filter":[{"date_modified":{"last_7_days":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>next_7_days</code></td>
+                  <td>7 ngày tới</td>
+                  <td><code>"filter":[{"date_modified":{"next_7_days":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>last_30_days</code></td>
+                  <td>30 ngày qua</td>
+                  <td><code>"filter":[{"date_modified":{"last_30_days":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>next_30_days</code></td>
+                  <td>30 ngày tới</td>
+                  <td><code>"filter":[{"date_modified":{"next_30_days":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>last_year</code></td>
+                  <td>Năm ngoái</td>
+                  <td><code>"filter":[{"date_modified":{"last_year":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>this_year</code></td>
+                  <td>Năm nay</td>
+                  <td><code>"filter":[{"date_modified":{"this_year":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>next_year</code></td>
+                  <td>Năm sau</td>
+                  <td><code>"filter":[{"date_modified":{"next_year":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_empty</code></td>
+                  <td>Không trống</td>
+                  <td><code>"filter":[{"date_modified":{"$not_empty":""}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: bool</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$equals</code></td>
+                  <td>Là (true/false)</td>
+                  <td><code>"filter":[{"is_active":{"$equals":true}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: relate</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$in</code></td>
+                  <td>Được gán cho một trong (danh sách ID)</td>
+                  <td><code>"filter":[{"assigned_user_id":{"$in":["user_id1","user_id2"]}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_in</code></td>
+                  <td>Không được gán cho bất kỳ (danh sách ID)</td>
+                  <td><code>"filter":[{"assigned_user_id":{"$not_in":["user_id1","user_id2"]}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$empty</code></td>
+                  <td>Trống</td>
+                  <td><code>"filter":[{"assigned_user_id":{"$empty":""}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: teamset</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$in</code></td>
+                  <td>Chứa ít nhất một trong các giá trị (danh sách team ID)</td>
+                  <td><code>"filter":[{"team_set_id":{"$in":["team_id1","team_id2"]}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_in</code></td>
+                  <td>Không chứa bất kỳ giá trị nào trong (danh sách team ID)</td>
+                  <td><code>"filter":[{"team_set_id":{"$not_in":["team_id1","team_id2"]}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: phone</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$starts</code></td>
+                  <td>Bắt đầu bằng</td>
+                  <td><code>"filter":[{"phone_work":{"$starts":"+84"}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$equals</code></td>
+                  <td>Khớp chính xác</td>
+                  <td><code>"filter":[{"phone_work":{"$equals":"+84123456789"}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: radioenum</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$equals</code></td>
+                  <td>Là</td>
+                  <td><code>"filter":[{"status":{"$equals":"Active"}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_equals</code></td>
+                  <td>Không là</td>
+                  <td><code>"filter":[{"status":{"$not_equals":"Inactive"}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: parent</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$equals</code></td>
+                  <td>Là (ID của bản ghi cha)</td>
+                  <td><code>"filter":[{"parent_id":{"$equals":"record_id"}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: tag</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$in</code></td>
+                  <td>Chứa ít nhất một trong các giá trị (danh sách tag)</td>
+                  <td><code>"filter":[{"tag":{"$in":["tag1","tag2"]}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_in</code></td>
+                  <td>Không chứa bất kỳ giá trị nào trong (danh sách tag)</td>
+                  <td><code>"filter":[{"tag":{"$not_in":["tag1","tag2"]}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$empty</code></td>
+                  <td>Trống</td>
+                  <td><code>"filter":[{"tag":{"$empty":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_empty</code></td>
+                  <td>Không trống</td>
+                  <td><code>"filter":[{"tag":{"$not_empty":""}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html><h3 class="h6 ms-4">Loại trường: relate</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$in</code></td>
+                  <td>Được gán cho một trong (danh sách ID)</td>
+                  <td><code>"filter":[{"assigned_user_id":{"$in":["user_id1","user_id2"]}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_in</code></td>
+                  <td>Không được gán cho bất kỳ (danh sách ID)</td>
+                  <td><code>"filter":[{"assigned_user_id":{"$not_in":["user_id1","user_id2"]}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$empty</code></td>
+                  <td>Trống</td>
+                  <td><code>"filter":[{"assigned_user_id":{"$empty":""}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: teamset</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$in</code></td>
+                  <td>Chứa ít nhất một trong các giá trị (danh sách team ID)</td>
+                  <td><code>"filter":[{"team_set_id":{"$in":["team_id1","team_id2"]}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_in</code></td>
+                  <td>Không chứa bất kỳ giá trị nào trong (danh sách team ID)</td>
+                  <td><code>"filter":[{"team_set_id":{"$not_in":["team_id1","team_id2"]}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: phone</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$starts</code></td>
+                  <td>Bắt đầu bằng</td>
+                  <td><code>"filter":[{"phone_work":{"$starts":"+84"}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$equals</code></td>
+                  <td>Khớp chính xác</td>
+                  <td><code>"filter":[{"phone_work":{"$equals":"+84123456789"}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: radioenum</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$equals</code></td>
+                  <td>Là</td>
+                  <td><code>"filter":[{"status":{"$equals":"Active"}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_equals</code></td>
+                  <td>Không là</td>
+                  <td><code>"filter":[{"status":{"$not_equals":"Inactive"}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: parent</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$equals</code></td>
+                  <td>Là (ID của bản ghi cha)</td>
+                  <td><code>"filter":[{"parent_id":{"$equals":"record_id"}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 ms-4">Loại trường: tag</h3>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Toán tử</th>
+                  <th scope="col">Mô tả</th>
+                  <th scope="col">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>$in</code></td>
+                  <td>Chứa ít nhất một trong các giá trị (danh sách tag)</td>
+                  <td><code>"filter":[{"tag":{"$in":["tag1","tag2"]}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_in</code></td>
+                  <td>Không chứa bất kỳ giá trị nào trong (danh sách tag)</td>
+                  <td><code>"filter":[{"tag":{"$not_in":["tag1","tag2"]}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$empty</code></td>
+                  <td>Trống</td>
+                  <td><code>"filter":[{"tag":{"$empty":""}}]</code></td>
+                </tr>
+                <tr>
+                  <td><code>$not_empty</code></td>
+                  <td>Không trống</td>
+                  <td><code>"filter":[{"tag":{"$not_empty":""}}]</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h2 class="h5 mt-5">Các Điều Kiện Logic trong Bộ Lọc</h2>
+          <p class="ms-3">Các điều kiện logic cho phép bạn kết hợp nhiều bộ lọc thành các biểu thức phức tạp. Hệ thống hỗ trợ ba toán tử logic chính: $and, $or và $not.</p>
+
+          <h3 class="h6 ms-4 mt-4">1. Toán tử $and</h3>
+          <div class="ms-5">
+            <p>Toán tử <code>$and</code> yêu cầu tất cả các điều kiện bên trong phải đúng.</p>
+            <p><strong>Cú pháp:</strong></p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$and": [
+      {ĐIỀU KIỆN 1},
+      {ĐIỀU KIỆN 2},
+      ...
+    ]
+  }
+]</pre>
+            <p><strong>Ví dụ:</strong> Lọc các account thuộc ngành "Technology" và có doanh thu trên 1 triệu</p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$and": [
+      {"industry": {"$equals": "Technology"}},
+      {"annual_revenue": {"$gt": 1000000}}
+    ]
+  }
+]</pre>
+          </div>
+
+          <h3 class="h6 ms-4 mt-4">2. Toán tử $or</h3>
+          <div class="ms-5">
+            <p>Toán tử <code>$or</code> yêu cầu ít nhất một điều kiện bên trong phải đúng.</p>
+            <p><strong>Cú pháp:</strong></p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$or": [
+      {ĐIỀU KIỆN 1},
+      {ĐIỀU KIỆN 2},
+      ...
+    ]
+  }
+]</pre>
+            <p><strong>Ví dụ:</strong> Lọc các contact ở TP.HCM hoặc Hà Nội</p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$or": [
+      {"primary_address_city": {"$equals": "TP.HCM"}},
+      {"primary_address_city": {"$equals": "Hà Nội"}}
+    ]
+  }
+]</pre>
+          </div>
+
+          <h3 class="h6 ms-4 mt-4">3. Toán tử $not</h3>
+          <div class="ms-5">
+            <p>Toán tử <code>$not</code> phủ định một điều kiện.</p>
+            <p><strong>Cú pháp:</strong></p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$not": {ĐIỀU KIỆN}
+  }
+]</pre>
+            <p><strong>Ví dụ:</strong> Lọc các account không thuộc ngành "Retail"</p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$not": {
+      "industry": {"$equals": "Retail"}
+    }
+  }
+]</pre>
+          </div>
+
+          <h3 class="h6 ms-4 mt-4">4. Kết hợp nhiều toán tử logic</h3>
+          <div class="ms-5">
+            <p>Bạn có thể kết hợp các toán tử logic để tạo ra các biểu thức phức tạp.</p>
+            <p><strong>Ví dụ:</strong> Lọc các deal có giá trị trên $10,000 và (status là "Closed Won" hoặc "Negotiation")</p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$and": [
+      {"amount": {"$gt": 10000}},
+      {
+        "$or": [
+          {"sales_stage": {"$equals": "Closed Won"}},
+          {"sales_stage": {"$equals": "Negotiation"}}
+        ]
+      }
+    ]
+  }
+]</pre>
+          </div>
+
+          <h3 class="h6 ms-4 mt-4">5. Các lưu ý quan trọng</h3>
+          <div class="ms-5">
+            <ul>
+              <li>Bạn có thể lồng các toán tử logic nhiều mức tùy theo nhu cầu</li>
+              <li>Thứ tự ưu tiên: <code>$not</code> > <code>$and</code> > <code>$or</code></li>
+              <li>Để kiểm soát thứ tự thực hiện, hãy sử dụng các nhóm điều kiện rõ ràng</li>
+              <li>Khi kết hợp nhiều điều kiện cùng cấp độ, hệ thống sẽ tự động xử lý như toán tử $and</li>
+              <li>Đối với các bộ lọc phức tạp, nên định dạng code rõ ràng để dễ bảo trì</li>
+            </ul>
+            <p><strong>Ví dụ thứ tự ưu tiên:</strong> Biểu thức <code>A OR B AND C</code> sẽ được hiểu là <code>A OR (B AND C)</code></p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$or": [
+      {"A": ...},
+      {
+        "$and": [
+          {"B": ...},
+          {"C": ...}
+        ]
+      }
+    ]
+  }
+]</pre>
+          </div>
+          <h2 class="h5 mt-5">Các biểu thức bộ lọc mẫu</h2>
+          <p class="ms-3">Dưới đây là các ví dụ về biểu thức bộ lọc phức tạp thường gặp trong thực tế:</p>
+
+          <h3 class="h6 ms-4">1. Kết hợp nhiều điều kiện với $and</h3>
+          <div class="ms-5">
+            <p>Lọc các account có ngành là "Technology" và doanh thu trên 1 triệu:</p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$and": [
+      {"industry": {"$equals": "Technology"}},
+      {"annual_revenue": {"$gt": 1000000}}
+    ]
+  }
+]</pre>
+          </div>
+
+          <h3 class="h6 ms-4 mt-4">2. Kết hợp điều kiện với $or</h3>
+          <div class="ms-5">
+            <p>Lọc các contact ở TP.HCM hoặc Hà Nội:</p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$or": [
+      {"primary_address_city": {"$equals": "TP.HCM"}},
+      {"primary_address_city": {"$equals": "Hà Nội"}}
+    ]
+  }
+]</pre>
+          </div>
+
+          <h3 class="h6 ms-4 mt-4">3. Lồng ghép $and và $or</h3>
+          <div class="ms-5">
+            <p>Lọc các deal có giá trị trên $10,000 và (status là "Closed Won" hoặc "Negotiation"):</p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$and": [
+      {"amount": {"$gt": 10000}},
+      {
+        "$or": [
+          {"sales_stage": {"$equals": "Closed Won"}},
+          {"sales_stage": {"$equals": "Negotiation"}}
+        ]
+      }
+    ]
+  }
+]</pre>
+          </div>
+
+          <h3 class="h6 ms-4 mt-4">4. Kết hợp điều kiện ngày và giá trị</h3>
+          <div class="ms-5">
+            <p>Lọc các task được tạo trong tháng này và có độ ưu tiên cao:</p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$and": [
+      {"date_entered": {"this_month": ""}},
+      {"priority": {"$equals": "High"}}
+    ]
+  }
+]</pre>
+          </div>
+
+          <h3 class="h6 ms-4 mt-4">5. Lọc với trường relate và enum</h3>
+          <div class="ms-5">
+            <p>Lọc các case được gán cho user A hoặc user B và có mức độ nghiêm trọng cao:</p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$and": [
+      {"assigned_user_id": {"$in": ["userA_id", "userB_id"]}},
+      {"severity": {"$equals": "High"}}
+    ]
+  }
+]</pre>
+          </div>
+
+          <h3 class="h6 ms-4 mt-4">6. Lọc với $not và $or</h3>
+          <div class="ms-5">
+            <p>Lọc các account không thuộc ngành "Retail" hoặc "Hospitality":</p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$not": {
+      "industry": {"$in": ["Retail", "Hospitality"]}
+    }
+  }
+]</pre>
+          </div>
+
+          <h3 class="h6 ms-4 mt-4">7. Lọc kết hợp multienum và date</h3>
+          <div class="ms-5">
+            <p>Lọc các campaign có category chứa "Email" hoặc "Social" và diễn ra trong năm nay:</p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$and": [
+      {"campaign_category": {"$contains": ["Email", "Social"]}},
+      {"start_date": {"this_year": ""}}
+    ]
+  }
+]</pre>
+          </div>
+
+          <h3 class="h6 ms-4 mt-4">8. Lọc với trường tag phức tạp</h3>
+          <div class="ms-5">
+            <p>Lọc các bản ghi có tag "VIP" hoặc "Important" nhưng không có tag "Test":</p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$and": [
+      {"tag": {"$in": ["VIP", "Important"]}},
+      {"tag": {"$not_in": ["Test"]}}
+    ]
+  }
+]</pre>
+          </div>
+
+          <h3 class="h6 ms-4 mt-4">9. Lọc với giá trị null/empty</h3>
+          <div class="ms-5">
+            <p>Lọc các lead có email nhưng không có số điện thoại:</p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$and": [
+      {"email": {"$not_empty": ""}},
+      {"phone_mobile": {"$empty": ""}}
+    ]
+  }
+]</pre>
+          </div>
+
+          <h3 class="h6 ms-4 mt-4">10. Lọc với nhiều mức độ lồng nhau</h3>
+          <div class="ms-5">
+            <p>Lọc các opportunity có amount > $50,000 và (ngành là "Technology" hoặc (ngành là "Finance" và probability > 70%)):</p>
+            <pre class="bg-light p-3 rounded">"filter":[
+  {
+    "$and": [
+      {"amount": {"$gt": 50000}},
+      {
+        "$or": [
+          {"account_type": {"$equals": "Technology"}},
+          {
+            "$and": [
+              {"account_type": {"$equals": "Finance"}},
+              {"probability": {"$gt": 70}}
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]</pre>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
